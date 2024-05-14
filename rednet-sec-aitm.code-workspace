@@ -26,7 +26,7 @@
 			"**/.pytest_cache": true,
 			"**/__pycache__": true,
 			"**/coverage.xml": true,
-			"**/.coverage": true,
+			"**/.coverage": false,
 		},
 		"editor.formatOnSave": true,
 		"editor.formatOnPaste": true,
