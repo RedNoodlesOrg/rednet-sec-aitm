@@ -8,11 +8,8 @@ from mitmproxy.test.tflow import tflow
 from aitm.helpers.config import Config
 from aitm.upstream_addon import UpstreamAddon
 
-# Mock configuration similar to your aitm.aitm_config structure
 mock_config = Config(local_upstream_hostname="localhost", local_upstream_scheme="http")
-mock_config.targets = [
-    {"origin": "example.com", "proxy": "proxy.example.com", "port": 8080}
-]
+mock_config.targets = [{"origin": "example.com", "proxy": "proxy.example.com", "port": 8080}]
 
 
 @pytest.fixture
@@ -36,6 +33,7 @@ def upstream_addon():
     return addon
 
 
+# TODO: Implement the ``request_sets_upstream_port`` test
 def test_request_sets_upstream_port(upstream_addon, mock_flow_factory):
     mock_flow = mock_flow_factory(host="proxy.example.com")
     upstream_addon.request(mock_flow)
@@ -49,6 +47,7 @@ def test_request_sets_upstream_port(upstream_addon, mock_flow_factory):
     # assert mock_flow.request.scheme == mock_config["local_upstream_scheme"]
 
 
+# TODO: Implement the ``request_with_non_target_proxy`` test
 def test_request_with_non_target_proxy(upstream_addon, mock_flow_factory):
     mock_flow = mock_flow_factory(host="non.target.proxy")
     upstream_addon.request(mock_flow)

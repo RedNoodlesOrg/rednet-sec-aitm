@@ -9,7 +9,6 @@ from mitmproxy.test.tutils import treq
 from aitm.helpers.config import Config
 from aitm.modifier_addon import ModifierAddon
 
-# Mock configuration similar to your aitm.aitm_config structure
 mock_config = Config(mfa_claim="mock_mfa_claim", auth_url=["/mock/auth/url"])
 mock_config.targets = [{"origin": "example.com", "proxy": "proxy.example.com"}]
 
@@ -34,22 +33,17 @@ def mock_flow_response():
     return flow
 
 
-# Dummy Test
+# TODO Implement the ``request_host_header`` test
 def test_request_host_header(modifier_addon, mock_flow_request):
     mock_flow_request.request.path = "/common/oauth2/v2.0/authorize"
     modifier_addon.request(mock_flow_request)
     mock_flow_request.request.path = "/common/login"
     modifier_addon.request(mock_flow_request)
-    # Add assertions here based on expected modifications
     assert True
 
 
-# Dummy Test
+# TODO Implement the ``response_location_header`` test
 def test_response_location_header(modifier_addon, mock_flow_response):
     mock_flow_response.response.path = "/mock/auth/url"
     modifier_addon.response(mock_flow_response)
-    # Add assertions here based on expected modifications
     assert True
-
-
-# Add more tests as needed to cover the functionality of your ModifierAddon methods

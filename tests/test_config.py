@@ -56,7 +56,7 @@ def test_targets_deletion():
     ]
     config.targets = targets
     del config.targets
-    # After deletion, accessing targets or its derivatives should raise an AttributeError
+
     with pytest.raises(AttributeError):
         _ = config.targets
     with pytest.raises(AttributeError):

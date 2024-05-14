@@ -8,13 +8,8 @@ import pytest
 from mitmproxy.test.tutils import treq
 
 from aitm.helpers.config import Config
-from aitm.helpers.requests import (  # Adjust the import as necessary
-    modify_header,
-    modify_host,
-    modify_query,
-)
+from aitm.helpers.requests import modify_header, modify_host, modify_query
 
-# Mock configuration
 mock_config = Config()
 mock_config.targets = [
     {"origin": "example.com", "proxy": "proxy.example.com", "port": 80},
