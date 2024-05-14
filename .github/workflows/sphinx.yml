@@ -1,0 +1,55 @@
+name: Deploy Sphinx documentation to Pages
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pages:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4.1.4
+
+      - name: Setup PDM
+        id: pdm_setup
+        uses: pdm-project/setup-pdm@v4.1
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install dependencies
+        run: pdm install --group docs
+
+      - name: Read pyproject.toml
+        run: |
+          echo "PROJECT_VERSION=$(yq eval '.project.version' pyproject.toml)" >> $GITHUB_ENV
+          echo "PROJECT_AUTHOR=$(yq eval '.project.authors[0].name' pyproject.toml)" >> $GITHUB_ENV
+          echo "PROJECT_NAME=$(yq eval '.project.name' pyproject.toml)" >> $GITHUB_ENV
+          echo "SPHINX_THEME=$(yq eval '.tool.project-customizations.docs.theme' pyproject.toml)" >> $GITHUB_ENV
+
+      - name: Create docs
+        run: |
+          pdm run sphinx-apidoc --full \
+            --ext-githubpages \
+            --ext-viewcode \
+            --ext-ifconfig \
+            --ext-todo \
+            --ext-autodoc \
+            --ext-intersphinx \
+            --extensions "sphinx.ext.napoleon" \
+            -H $PROJECT_NAME \
+            -A $PROJECT_AUTHOR \
+            -V $PROJECT_VERSION \
+            -o docs src/*/
+
+      - id: deployment
+        uses: sphinx-notes/pages@v3
+        with:
+          python_version: ${{ steps.pdm_setup.outputs.python-version }}
+          checkout: false
+          sphinx_build_options: -D html_theme=${{ env.SPHINX_THEME }}
