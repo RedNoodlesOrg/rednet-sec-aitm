@@ -11,7 +11,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = []
+dependencies = [
+    "mitmproxy>=10.3.0",
+]
 
 [tool.project-customizations.docs]
 theme = "sphinx_rtd_theme"
