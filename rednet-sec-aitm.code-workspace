@@ -1,0 +1,88 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Project"
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.linux": {
+			"PYTHONPATH": "./src",
+		},
+		"terminal.integrated.env.windows": {
+			"PYTHONPATH": "./src",
+		},
+		"terminal.integrated.env.osx": {
+			"PYTHONPATH": "./src",
+		},
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			"**/.mypy_cache": true,
+			"**/.pytest_cache": true,
+			"**/__pycache__": true,
+			"**/coverage.xml": true,
+			"**/.coverage": true,
+		},
+		"editor.formatOnSave": true,
+		"editor.formatOnPaste": true,
+		"files.trimTrailingWhitespace": true,
+		"files.autoSave": "onFocusChange",
+		"git.autofetch": true,
+		"[jsonc]": {
+			"editor.defaultFormatter": "vscode.json-language-features"
+		},
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.black-formatter"
+		},
+		"python.analysis.extraPaths": [
+			"./src"
+		],
+		"python.autoComplete.extraPaths": [
+			"./src"
+		],
+		"python.testing.unittestEnabled": false,
+		"python.testing.pytestEnabled": true,
+		"python.testing.pytestArgs": [
+			"--no-cov",
+			"./tests"
+		],
+		"pylint.args": [
+			"--rcfile=pyproject.toml"
+		],
+		"black-formatter.args": [
+			"--config=pyproject.toml"
+		],
+		"flake8.args": [
+			"--toml-config=pyproject.toml"
+		],
+		"isort.args": [
+			"--settings-path=pyproject.toml"
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Python Debugger",
+				"type": "debugpy",
+				"request": "launch",
+				"console": "integratedTerminal",
+				"env": {
+					"PYTEST_ADDOPTS": "--no-cov",
+					"PYTHONPATH": "./src"
+				},
+				"purpose": [
+					"debug-test"
+				],
+				"justMyCode": false,
+				"stopOnEntry": false
+			}
+		],
+		"compounds": []
+	}
+}
