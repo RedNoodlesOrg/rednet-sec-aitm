@@ -1,5 +1,5 @@
 """
-Modifier Addon
+Modifier Addon for mitmproxy.
 """
 
 from __future__ import annotations
@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 
 class ModifierAddon:
     """
-    Addon Class for mitmproxy
+    Addon Class for mitmproxy.
+
+    This addon modifies HTTP requests and responses passing through mitmproxy.
     """
 
     credentials: dict[str, str] = {}
@@ -26,7 +28,15 @@ class ModifierAddon:
 
     def request(self, flow: HTTPFlow) -> None:
         """
-        Method which mitmproxy calls for each request
+        Modifies HTTP request headers and query parameters.
+
+        This method is called by mitmproxy for each HTTP request. It modifies
+        specific headers and query parameters as defined in the helper functions.
+        Additionally, it extracts and stores credentials from login requests.
+
+        Args:
+            flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
+                                            the client request and server response.
         """
         requests.modify_header(flow, "Host")
         requests.modify_header(flow, "Referer")
@@ -42,7 +52,16 @@ class ModifierAddon:
 
     def response(self, flow: HTTPFlow) -> None:
         """
-        Method which mitmproxy calls for each response
+        Modifies HTTP response headers, cookies, and content.
+
+        This method is called by mitmproxy for each HTTP response. It modifies
+        specific headers, saves and modifies cookies, and potentially alters the
+        response content as defined in the helper functions. It also prints
+        parsed cookies and stored credentials for authentication URLs.
+
+        Args:
+            flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
+                                            the client request and server response.
         """
         responses.modify_header(flow, "Location")
         responses.save_cookies(flow, self.simple_cookie)
