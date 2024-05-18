@@ -55,7 +55,7 @@ distribution = false
 
 [tool.pdm.scripts]
 test.cmd = "pytest --cov=src --cov-report=xml"
-start.cmd = "python src/aitm/__main__.py"
+start.cmd = "python -m aitm"
 
 [tool.mypy]
 plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
