@@ -45,9 +45,6 @@ async def start_proxy(proxies: list[str]):
 
 
 if __name__ == "__main__":
-    reverse_proxies = [
-        f"reverse:https://{target['origin']}@{target['port']}"
-        for target in config.targets
-    ]
+    reverse_proxies = [f"reverse:https://{target['origin']}@{target['port']}" for target in config.targets]
     reverse_proxies.append("upstream:https://dummy:8888")
     asyncio.run(start_proxy(reverse_proxies))
