@@ -10,9 +10,9 @@ import logging
 from mitmproxy import options
 from mitmproxy.tools import dump
 
-from aitm.aitm_config import config
-from aitm.modifier_addon import ModifierAddon
-from aitm.upstream_addon import UpstreamAddon
+from .aitm_config import config
+from .modifier_addon import ModifierAddon
+from .upstream_addon import UpstreamAddon
 
 logging.root.setLevel("INFO")
 
@@ -31,14 +31,7 @@ async def start_proxy(proxies: list[str]):
     Returns:
         mitmproxy.tools.dump.DumpMaster: The running mitmproxy instance.
     """
-    opts = options.Options(
-        showhost=True,
-        listen_host="0.0.0.0",
-        listen_port=443,
-        mode=proxies,
-        certs=["certs/fullchain.pem"],
-        ssl_insecure=True,
-    )
+    opts = options.Options(showhost=True, listen_host="0.0.0.0", listen_port=8080, mode=proxies)
 
     master = dump.DumpMaster(
         opts,
