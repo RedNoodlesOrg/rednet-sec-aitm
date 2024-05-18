@@ -1,5 +1,5 @@
 """
-Main script that start mitmproxy
+Main script to start mitmproxy with custom addons.
 """
 
 from __future__ import annotations
@@ -19,7 +19,17 @@ logging.root.setLevel("INFO")
 
 async def start_proxy(proxies: list[str]):
     """
-    Async Method to run the proxy
+    Asynchronously starts the mitmproxy with specified proxies.
+
+    This function sets up and runs the mitmproxy with the provided proxy
+    configurations, adding custom addons for upstream and request/response
+    modification.
+
+    Args:
+        proxies (list[str]): A list of proxy modes for mitmproxy to use.
+
+    Returns:
+        mitmproxy.tools.dump.DumpMaster: The running mitmproxy instance.
     """
     opts = options.Options(
         showhost=True,
