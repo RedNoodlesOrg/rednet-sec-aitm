@@ -10,8 +10,8 @@ from http.cookies import SimpleCookie
 
 from mitmproxy.http import HTTPFlow
 
-from aitm.aitm_config import config
-from aitm.helpers import cookies, requests, responses
+from .aitm_config import config
+from .helpers import cookies, requests, responses
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ import logging
 
 from mitmproxy.http import HTTPFlow
 
-from aitm.aitm_config import config
+from .aitm_config import config
 
 logger = logging.getLogger(__name__)
 

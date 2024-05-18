@@ -6,9 +6,10 @@ from __future__ import annotations
 
 from mitmproxy.http import HTTPFlow
 
-from aitm.aitm_config import config
+from ..aitm_config import config
 
 
+# TODO: Remove dependency on config.targets
 def modify_header(flow: HTTPFlow, header: str) -> None:
     """
     Modifies the specified header in an HTTP request.
