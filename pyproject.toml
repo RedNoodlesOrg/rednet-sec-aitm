@@ -1,6 +1,6 @@
 [project]
 name = "rednet-sec-aitm"
-version = "1.0.0"
+version = "1.1.0"
 description = "Python project demonstrating how easy AiTM is used to bypass MFA"
 authors = [{ name = "Fakeapate", email = "imboden.samuel@protonmail.ch" }]
 license = { text = "MIT" }
