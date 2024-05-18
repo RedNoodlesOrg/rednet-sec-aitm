@@ -1,0 +1,23 @@
+name: rednet-sec-aitm
+networks:
+  default:
+    name: rednet-sec-aitm_default
+services:
+  aitm:
+    build:
+      context: S:\rednet-sec-aitm
+      dockerfile: Dockerfile
+    depends_on:
+      cloudflared:
+        condition: service_started
+        required: true
+    extra_hosts:
+      - local.upstream.host:127.0.0.1
+    networks:
+      default: null
+  cloudflared:
+    command: tunnel --no-autoupdate run --token $CF_API_TOKEN
+    image: cloudflare/cloudflared:latest
+    networks:
+      default: null
+    restart: always
