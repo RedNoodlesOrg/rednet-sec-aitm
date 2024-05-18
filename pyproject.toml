@@ -1,7 +1,7 @@
 [project]
-name = "py-project-toml"
-version = "0.1.0"
-description = "Sample Python Project for creating a new Python Module"
+name = "rednet-sec-aitm"
+version = "1.0.0"
+description = "Python project demonstrating how easy AiTM is used to bypass MFA"
 authors = [{ name = "Fakeapate", email = "imboden.samuel@protonmail.ch" }]
 license = { text = "MIT" }
 readme = "README.md"
@@ -53,6 +53,9 @@ docs = [
 [tool.pdm]
 distribution = false
 
+[tool.pdm.scripts]
+test.cmd = "pytest --cov=src --cov-report=xml"
+
 [tool.mypy]
 plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
 
@@ -65,12 +68,6 @@ targets = "src"
 [tool.black]
 line-length = 120
 fast = true
-
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-fail_under = 100
 
 [tool.flake8]
 max-line-length = 120
@@ -102,9 +99,33 @@ pythonPlatform = "Linux"
 
 executionEnvironments = [{ root = "src" }]
 
+[tool.coverage.run]
+branch = true
+source = ["src"]
+omit = ["*/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 100
+
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == '__main__':",
+]
+
 [tool.pytest.ini_options]
-addopts = ["--import-mode=importlib"]
-pythonpath = ["./src"]
+addopts = [
+    "--import-mode=importlib",
+    "--cov=src",
+    "--cov-report=xml",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-config=pyproject.toml",
+]
+pythonpath = ["src/"]
 testpaths = ["tests"]
 junit_family = "xunit2"
 markers = [
