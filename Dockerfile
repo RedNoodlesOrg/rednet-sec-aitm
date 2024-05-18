@@ -44,4 +44,4 @@ WORKDIR /project
 EXPOSE 8080
 
 # Define the default command to run the application
-CMD ["python", "-u", "src/aitm/__main__.py"]
+CMD ["python", "-u", "-m", "aitm"]
