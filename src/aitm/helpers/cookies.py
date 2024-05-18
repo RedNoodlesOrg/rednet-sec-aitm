@@ -6,9 +6,10 @@ from __future__ import annotations
 
 from http.cookies import SimpleCookie
 
-from aitm.aitm_config import config
+from ..aitm_config import config
 
 
+# TODO: Remove dependency on config.targets
 def parse_cookies(cookies: SimpleCookie) -> list[dict[str, str]]:
     """
     Parses a SimpleCookie object into a list of dictionaries formatted for CookieEditor.

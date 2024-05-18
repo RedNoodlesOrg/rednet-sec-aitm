@@ -4,7 +4,7 @@ AiTM Config
 
 from __future__ import annotations
 
-from aitm.helpers.config import Config
+from .helpers.config import Config
 
 config = Config(
     mfa_claim='{"id_token":{"amr":{"essential":true,"values":["mfa"]}},'
