@@ -36,7 +36,7 @@ class VerifySecurityInfo(PostRequest):
 
     data: dict
 
-    def __init__(self, verification_context: str, otp_code: str) -> None:
+    def __init__(self, verification_context: str, otp_code: str, cookies: dict | None = None) -> None:
         """
         Initializes a new instance of the VerifySecurityInfo class.
 
@@ -53,3 +53,18 @@ class VerifySecurityInfo(PostRequest):
             "VerificationContext": f"{verification_context}",
             "VerificationData": f"{otp_code}",
         }
+        self.cookies = cookies
+
+    def _additional_verify(self, response: dict) -> None:
+        """
+        Verifies the additional response data for the VerifySecurityInfo endpoint.
+
+        Args:
+            response (dict): The response data to verify.
+
+        Returns:
+            None
+        """
+        assert response["Type"] == 3
+        assert response["VerificationState"] == 2
+        assert response["ErrorCode"] == 0
