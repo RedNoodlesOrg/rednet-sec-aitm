@@ -21,3 +21,13 @@ class InitializeMobileAppRegistration(PostRequest):
         "properties": {"SecretKey": {"type": "string"}},
         "required": ["SecretKey"],
     }
+
+    def __init__(self, cookies: dict | None = None) -> None:
+        """
+        Initializes a new instance of the InitializeMobileAppRegistration class.
+
+        Args:
+            cookies (dict): The cookies to be used in the request.
+        """
+        super().__init__()
+        self.cookies = cookies
