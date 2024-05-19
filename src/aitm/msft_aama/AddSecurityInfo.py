@@ -32,7 +32,7 @@ class AddSecurityInfo(PostRequest):
 
     data: dict
 
-    def __init__(self, secret_key: str) -> None:
+    def __init__(self, secret_key: str, cookies: dict | None = None) -> None:
         """
         Initializes a new instance of the AddSecurityInfo class.
 
@@ -44,3 +44,15 @@ class AddSecurityInfo(PostRequest):
             "Type": 3,
             "Data": {"secretKey": f"{secret_key}", "affinityRegion": "null", "isResendNotificationChallenge": "false"},
         }
+        self.cookies = cookies
+
+    def _additional_verify(self, response: dict) -> None:
+        """
+        Verifies the additional response data for the AddSecurityInfo endpoint.
+
+        Args:
+            response (dict): The response data to verify.
+        """
+        assert response["Type"] == 3
+        assert response["VerificationState"] == 1
+        assert response["ErrorCode"] == 0
