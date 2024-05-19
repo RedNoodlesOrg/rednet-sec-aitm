@@ -5,26 +5,11 @@ import pytest
 import requests_mock
 
 from aitm.msft_aama import (AddSecurityInfo, InitializeMobileAppRegistration,
-                            OTPGenerator, VerifySecurityInfo)
+                            OTPGenerator, VerifySecurityInfo, register)
 
 
-@pytest.mark.integration
-def test_aama():
-    """
-    Test case for the AAMA (Add Authentication Method Automation) flow.
-
-    This test case performs the following steps:
-    1. Generates a random secret key using pyotp.
-    2. Initializes the mobile app registration by making a POST request to the InitializeMobileAppRegistration endpoint.
-    3. Adds security info by making a POST request to the AddSecurityInfo endpoint.
-    4. Verifies the security info by making a POST request to the VerifySecurityInfo endpoint.
-    5. Performs assertions to validate the responses from each step.
-
-    Note: This test case requires the requests_mock library for mocking HTTP requests.
-
-    Returns:
-        None
-    """
+@pytest.fixture
+def mock_requests():
     secret_key = pyotp.random_base32()
     totp = pyotp.TOTP(secret_key)
 
@@ -55,22 +40,45 @@ def test_aama():
         m.post(AddSecurityInfo.url, json=asi_respone)
         m.post(InitializeMobileAppRegistration.url, json=imar_response)
 
-        step_1 = InitializeMobileAppRegistration()
-        step_1_response = step_1.post_verify()
+        yield m, totp, imar_response, asi_respone, vsi_response
 
-        assert step_1_response == imar_response
 
-        otp_gen = OTPGenerator(step_1_response["SecretKey"])
+@pytest.mark.integration
+def test_aama(mock_requests):
+    """
+    Test case for the AAMA (Add Authentication Method Automation) flow.
 
-        step_2 = AddSecurityInfo(step_1_response["SecretKey"])
-        step_2_response = step_2.post_verify()
+    This test case performs the following steps:
+    1. Generates a random secret key using pyotp.
+    2. Initializes the mobile app registration by making a POST request to the InitializeMobileAppRegistration endpoint.
+    3. Adds security info by making a POST request to the AddSecurityInfo endpoint.
+    4. Verifies the security info by making a POST request to the VerifySecurityInfo endpoint.
+    5. Performs assertions to validate the responses from each step.
 
-        assert step_2_response == asi_respone
+    Note: This test case requires the requests_mock library for mocking HTTP requests.
 
-        step_3 = VerifySecurityInfo(step_2_response["VerificationContext"], otp_gen.generate_otp())
-        step_3_response = step_3.post_verify()
+    Returns:
+        None
+    """
+    m, totp, imar_response, asi_response, vsi_response = mock_requests
+    step_1 = InitializeMobileAppRegistration()
+    step_1_response = step_1.post_verify()
 
-        assert step_3_response == vsi_response
+    otp_gen = OTPGenerator(step_1_response["SecretKey"])
 
-        assert totp.now() == otp_gen.generate_otp()
-        assert totp.verify(otp_gen.generate_otp())
+    step_2 = AddSecurityInfo(step_1_response["SecretKey"])
+    step_2_response = step_2.post_verify()
+
+    step_3 = VerifySecurityInfo(step_2_response["VerificationContext"], otp_gen.generate_otp())
+    step_3_response = step_3.post_verify()
+
+    assert step_1_response == imar_response
+    assert step_2_response == asi_response
+    assert step_3_response == vsi_response
+
+    assert totp.now() == otp_gen.generate_otp()
+    assert totp.verify(otp_gen.generate_otp())
+
+
+def test_register(mock_requests):
+    register({})
