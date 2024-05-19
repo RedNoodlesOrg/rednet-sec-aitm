@@ -14,6 +14,7 @@ classifiers = [
 dependencies = [
     "mitmproxy>=10.3.0",
     "pyotp>=2.9.0",
+    "jsonschema>=4.22.0",
 ]
 
 [tool.project-customizations.docs]
@@ -46,6 +47,7 @@ dev = [
     "pytest-runner>=6.0.1",
     "shellcheck-py>=0.10.0.1",
     "virtualenv>=20.26.1",
+    "requests-mock>=1.12.1",
 ]
 docs = [
     "sphinx>=7.3.7",
