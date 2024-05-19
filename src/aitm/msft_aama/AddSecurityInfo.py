@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from requests import Session
+
 from .PostRequest import PostRequest
 
 
@@ -32,19 +34,18 @@ class AddSecurityInfo(PostRequest):
 
     data: dict
 
-    def __init__(self, secret_key: str, cookies: dict | None = None) -> None:
+    def __init__(self, secret_key: str, session: Session) -> None:
         """
         Initializes a new instance of the AddSecurityInfo class.
 
         Args:
             secret_key (str): The secret key to be added as security information.
         """
-        super().__init__()
+        super().__init__(session=session)
         self.data = {
             "Type": 3,
             "Data": {"secretKey": f"{secret_key}", "affinityRegion": "null", "isResendNotificationChallenge": "false"},
         }
-        self.cookies = cookies
 
     def _additional_verify(self, response: dict) -> None:
         """

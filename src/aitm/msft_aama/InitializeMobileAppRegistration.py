@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from requests import Session
+
 from .PostRequest import PostRequest
 
 
@@ -22,12 +24,11 @@ class InitializeMobileAppRegistration(PostRequest):
         "required": ["SecretKey"],
     }
 
-    def __init__(self, cookies: dict | None = None) -> None:
+    def __init__(self, session: Session) -> None:
         """
         Initializes a new instance of the InitializeMobileAppRegistration class.
 
         Args:
             cookies (dict): The cookies to be used in the request.
         """
-        super().__init__()
-        self.cookies = cookies
+        super().__init__(session=session)

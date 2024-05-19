@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from requests import Session
+
 from .PostRequest import PostRequest
 
 
@@ -36,7 +38,7 @@ class VerifySecurityInfo(PostRequest):
 
     data: dict
 
-    def __init__(self, verification_context: str, otp_code: str, cookies: dict | None = None) -> None:
+    def __init__(self, verification_context: str, otp_code: str, session: Session) -> None:
         """
         Initializes a new instance of the VerifySecurityInfo class.
 
@@ -47,13 +49,12 @@ class VerifySecurityInfo(PostRequest):
         Returns:
             None
         """
-        super().__init__()
+        super().__init__(session=session)
         self.data = {
             "Type": 3,
             "VerificationContext": f"{verification_context}",
             "VerificationData": f"{otp_code}",
         }
-        self.cookies = cookies
 
     def _additional_verify(self, response: dict) -> None:
         """
