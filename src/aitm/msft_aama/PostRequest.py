@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import requests
+from jsonschema import validate
+
 
 class PostRequest:
     """
@@ -17,7 +20,20 @@ class PostRequest:
     BASE_URL = "https://account.activedirectory.windowsazure.com/securityinfo/"
 
     url: str
-    headers: dict | None
-    data: dict | None
-    cookies: dict | None
-    responseDataSchema: dict | None
+    headers: dict | None = None
+    data: dict | None = None
+    cookies: dict | None = None
+    responseDataSchema: dict
+
+    def post_verify(self) -> dict | None:
+        """
+        Sends a POST request to the specified URL with the provided headers, data, and cookies.
+        Validates the response against the specified JSON schema.
+
+        Returns:
+            dict or None: The JSON response from the server, or None if the request failed.
+        """
+        response = requests.post(url=self.url, headers=self.headers, data=self.data, cookies=self.cookies, timeout=10)
+        response.raise_for_status()
+        validate(instance=response.json(), schema=self.responseDataSchema)
+        return response.json()

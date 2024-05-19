@@ -19,17 +19,16 @@ class OTPGenerator:
 
     """
 
-    class OTPGenerator:
-        def __init__(self, secret_key):
-            """
-            Initializes an OTPGenerator object.
+    def __init__(self, secret_key: str):
+        """
+        Initializes an OTPGenerator object.
 
-            Args:
-                secret_key (str): The secret key used for generating OTPs.
+        Args:
+            secret_key (str): The secret key used for generating OTPs.
 
-            """
-            self.secret_key = secret_key
-            self.totp = pyotp.TOTP(secret_key)
+        """
+        self.secret_key = secret_key
+        self.totp = pyotp.TOTP(secret_key)
 
     def generate_otp(self):
         """
