@@ -36,4 +36,13 @@ class PostRequest:
         response = requests.post(url=self.url, headers=self.headers, data=self.data, cookies=self.cookies, timeout=10)
         response.raise_for_status()
         validate(instance=response.json(), schema=self.responseDataSchema)
+        self._additional_verify(response.json())
         return response.json()
+
+    def _additional_verify(self, response: dict) -> None:
+        """Base class method for additional verification of the response data.
+
+        Args:
+            response (dict): Response to check.
+        """
+        pass
