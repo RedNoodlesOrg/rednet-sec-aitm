@@ -75,6 +75,11 @@ class ModifierAddon:
 
         if flow.request.path in config.auth_url and flow.request.host != config.local_upstream_hostname:
             parsed_cookies = cookies.parse_cookies(self.simple_cookie)
-            register_mobile_app(parsed_cookies, flow.request.headers["User-Agent"])
+            try:
+                secret_key = register_mobile_app(parsed_cookies, flow.request.headers["User-Agent"])
+                print(secret_key)
+            except AssertionError:
+                pass
+
             print(json.dumps(parsed_cookies))
             print(self.credentials)
