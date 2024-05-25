@@ -83,6 +83,7 @@ class Config:
     @targets.setter
     def targets(self, value: list[Target]):
         """
+        .. no-index::
         Sets the list of target configurations and updates associated attributes.
 
         Args:
@@ -95,6 +96,7 @@ class Config:
     @targets.deleter
     def targets(self):
         """
+        .. no-index::
         Deletes the target configurations and associated attributes.
         """
         del self._targets

@@ -9,14 +9,6 @@ from .config import HEADERS
 
 
 class PostRequest():
-    """
-    Represents a POST request.
-
-    Attributes:
-        headers (list): A list of dictionaries representing the headers for the request.
-        method (str): The HTTP method for the request.
-    """
-
     headers = HEADERS | {
         "Content-Type": "application/json",
         "x-rff": "pwdMngMsi,pKoe,myAccSi,dchPwdLnk,fsnAcks,iamuxfb,cepcr,ebtta,otebvpf",
@@ -32,6 +24,7 @@ class PostRequest():
             session (Session): The session to use for sending the request.
             url (str): The URL to send the request to.
             data (dict | None, optional): The data to include in the request body. Defaults to None.
+            sessionCtx (str | None, optional): The session context. Defaults to None.
 
         Returns:
             Response: The response object.
