@@ -3,10 +3,14 @@ from __future__ import annotations
 import base64
 import json
 import logging
+from urllib.parse import parse_qs, urlparse
 
 from jsonschema import validate
+from requests import Session
 from requests_oauthlib import OAuth2Session
 
+from ..aitm_config import config
+from .config import AUTH_SCOPES, AUTH_URL, CLIENT_ID, REDIRECT_URI
 from .requests import PostRequest
 
 logger = logging.getLogger(__name__)
@@ -72,3 +76,44 @@ def get_tenant_id(session: OAuth2Session) -> str:
     payload_string = payload_bytes.decode("utf-8")
     payload_json = json.loads(payload_string)
     return payload_json["tid"]
+
+
+def create_oauth2_session(session: Session) -> OAuth2Session:
+    """
+    Create and configure an OAuth2 session.
+
+    Args:
+        session (Session): The existing session object.
+
+    Returns:
+        OAuth2Session: The configured OAuth2 session.
+
+    """
+    auth_session = OAuth2Session(
+        client_id=CLIENT_ID,
+        scope=AUTH_SCOPES,
+        redirect_uri=REDIRECT_URI,
+        pkce="S256",
+    )
+    auth_session.cookies = session.cookies
+    auth_session.headers = session.headers
+    return auth_session
+
+
+def get_authorization_url(auth_session: OAuth2Session) -> tuple[str, dict[str, list[str]]]:
+    """
+    Generate the authorization URL with additional parameters.
+
+    Parameters:
+        auth_session (OAuth2Session): The OAuth2 session object.
+
+    Returns:
+        Tuple[str, dict]: A tuple containing the base URL and the parameters dictionary.
+
+    """
+    authorization_url, _ = auth_session.authorization_url(AUTH_URL, access_type="offline")
+    parsed_url = urlparse(authorization_url)
+    params = parse_qs(parsed_url.query)
+    params["claims"] = config.mfa_claim
+    base_url = parsed_url._replace(query=None).geturl()
+    return base_url, params

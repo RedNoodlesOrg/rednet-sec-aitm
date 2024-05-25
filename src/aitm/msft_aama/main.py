@@ -1,44 +1,94 @@
 from __future__ import annotations
 
 import json
-from http.cookies import SimpleCookie
+import os
 
 import pyotp
 from requests import Session
+from requests_oauthlib import OAuth2Session
 
-from .config import (ADD_SECURITY_INFO_URL, HEADERS, INITIALIZE_MOBILE_APP_URL,
-                     VERIFY_SECURITY_INFO_URL)
-from .schemas import (ADD_SECURITY_INFO_SCHEMA, INITIALIZE_MOBILE_APP_SCHEMA,
-                      VERIFY_SECURITY_INFO_SCHEMA)
-from .utils import send_request
+from aitm.msft_aama.config import HEADERS
+
+from .config import (
+    ACCESS_SCOPES,
+    ADD_SECURITY_INFO_URL,
+    AUTHORIZE_MOBILE_APP_URL,
+    INITIALIZE_MOBILE_APP_URL,
+    TENANT_TOKEN_URL,
+    TOKEN_URL,
+    VERIFY_SECURITY_INFO_URL,
+)
+from .schemas import (
+    ADD_SECURITY_INFO_SCHEMA,
+    AUTHORIZE_MOBILE_APP_SCHEMA,
+    INITIALIZE_MOBILE_APP_SCHEMA,
+    VERIFY_SECURITY_INFO_SCHEMA,
+)
+from .utils import (
+    create_oauth2_session,
+    get_authorization_url,
+    get_tenant_id,
+    send_request,
+)
+
+os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
 
 
-def initialize_mobileapp_registration(session: Session) -> dict:
+def authorize_mobileapp(session: OAuth2Session) -> str:
+    """
+    Authorizes the mobile app using the provided session.
+
+    Args:
+        session (OAuth2Session): The session object used for authorization.
+
+    Returns:
+        str: The session context.
+
+    Raises:
+        AssertionError: If the authorization response is not valid.
+    """
+
+    response = send_request(session=session, url=AUTHORIZE_MOBILE_APP_URL, schema=AUTHORIZE_MOBILE_APP_SCHEMA)
+    assert response["isAuthorized"]
+    assert "sessionCtx" in response
+    return response["sessionCtx"]
+
+
+def initialize_mobileapp_registration(session: OAuth2Session, session_ctx: str) -> dict:
     """
     Initializes the mobile app registration.
 
     Args:
-        session (Session): The session object for making requests.
+        session (OAuth2Session): The OAuth2 session.
+        session_ctx (str): The session context.
 
     Returns:
-        dict: The response from the mobile app registration API.
+        dict: The response from the server.
 
     Raises:
-        AssertionError: If the registration type in the response is not 3.
+        AssertionError: If the registration type is not 3.
     """
+
     data = {"securityInfoType": 3}
-    response = send_request(session, INITIALIZE_MOBILE_APP_URL, data, INITIALIZE_MOBILE_APP_SCHEMA)
+    response = send_request(
+        session=session,
+        url=INITIALIZE_MOBILE_APP_URL,
+        data=data,
+        schema=INITIALIZE_MOBILE_APP_SCHEMA,
+        sessionCtx=session_ctx,
+    )
     assert response["RegistrationType"] == 3
     return response
 
 
-def add_security_info(session: Session, secret_key: str) -> dict:
+def add_security_info(session: Session, secret_key: str, session_ctx: str) -> dict:
     """
     Adds security information to the session.
 
     Args:
         session (Session): The session object.
         secret_key (str): The secret key to be added.
+        session_ctx (str): The session context.
 
     Returns:
         dict: The response from the server.
@@ -46,25 +96,29 @@ def add_security_info(session: Session, secret_key: str) -> dict:
     Raises:
         AssertionError: If the response type, verification state, or error code is not as expected.
     """
+
     data = {
         "Type": 3,
         "Data": json.dumps({"secretKey": secret_key, "affinityRegion": None, "isResendNotificationChallenge": False}),
     }
-    response = send_request(session, ADD_SECURITY_INFO_URL, data, ADD_SECURITY_INFO_SCHEMA)
+    response = send_request(
+        session=session, url=ADD_SECURITY_INFO_URL, data=data, schema=ADD_SECURITY_INFO_SCHEMA, sessionCtx=session_ctx
+    )
     assert response["Type"] == 3
     assert response["VerificationState"] == 1
     assert response["ErrorCode"] == 0
     return response
 
 
-def verify_security_info(session: Session, verification_context: str, otp_code: str) -> dict:
+def verify_security_info(session: Session, verification_context: str, otp_code: str, session_ctx: str) -> dict:
     """
-    Verifies the security information using the provided session, verification context, and OTP code.
+    Verify the security information using the provided session, verification context, OTP code, and session context.
 
     Args:
         session (Session): The session object used for making the request.
         verification_context (str): The verification context.
         otp_code (str): The OTP code.
+        session_ctx (str): The session context.
 
     Returns:
         dict: The response from the verification request.
@@ -74,40 +128,90 @@ def verify_security_info(session: Session, verification_context: str, otp_code: 
     """
     data = {
         "Type": 3,
-        "Data": json.dumps(
-            {
-                "Type": 3,
-                "VerificationContext": verification_context,
-                "VerificationData": otp_code,
-            }
-        ),
+        "VerificationContext": verification_context,
+        "VerificationData": otp_code,
     }
-    response = send_request(session, VERIFY_SECURITY_INFO_URL, data, VERIFY_SECURITY_INFO_SCHEMA)
+    response = send_request(
+        session=session,
+        url=VERIFY_SECURITY_INFO_URL,
+        data=data,
+        schema=VERIFY_SECURITY_INFO_SCHEMA,
+        sessionCtx=session_ctx,
+    )
     assert response["Type"] == 3
     assert response["VerificationState"] == 2
     assert response["ErrorCode"] == 0
     return response
 
 
-def run(cookies: SimpleCookie, user_agent: str):
+def authorize(session: Session) -> OAuth2Session:
     """
-    Runs the main process for the AAMA (Add Authentication Method Automation) workflow.
+    Authorizes the session using OAuth2 authentication.
 
     Args:
-        cookies (SimpleCookie): The cookies to be used for the session.
+        session (Session): The session object.
+
+    Returns:
+        OAuth2Session: The authorized session object.
+    """
+    auth_session = create_oauth2_session(session)
+    base_url, params = get_authorization_url(auth_session)
+    auth_result = auth_session.get(base_url, params=params)
+    token = auth_session.fetch_token(token_url=TOKEN_URL, authorization_response=auth_result.url)
+    token = auth_session.refresh_token(token_url=TOKEN_URL, refresh_token=token["refresh_token"])
+    tid = get_tenant_id(auth_session)
+    tenant_token_url = TENANT_TOKEN_URL.format(tid=tid)
+    for scope in ACCESS_SCOPES:
+        auth_session.scope = scope
+        token = auth_session.refresh_token(token_url=tenant_token_url, refresh_token=token["refresh_token"])
+
+    return auth_session
+
+
+def prepare_session(cookies: list[dict[str, str]], user_agent: str) -> OAuth2Session:
+    """
+    Prepares the session object with the provided cookies and user agent.
+
+    Args:
+        cookies (list[dict[str, str]]): The cookies to be used for the session.
         user_agent (str): The user agent string to be used for the session.
 
     Returns:
-        None
+        Session: The session object with the provided cookies and user agent.
     """
     session = Session()
-    session.cookies.update(cookies)
-    session.headers.update({"name": "User-Agent", "value": user_agent})
+    for cookie in cookies:
+        session.cookies.set(
+            name=cookie["name"],
+            value=cookie["value"],
+            domain=cookie["domain"],
+        )
+    session.headers.update({"User-Agent": user_agent})
     session.headers.update(HEADERS)
+    return authorize(session)
+
+
+def run(cookies: list[dict[str, str]], user_agent: str) -> str:
+    """
+    Runs the main process for the mobile app authorization and security info verification.
+
+    Args:
+        cookies (list[dict[str, str]]): A list of cookies for the session.
+        user_agent (str): The user agent string for the session.
+
+    Returns:
+        str: The secret key generated during the mobile app registration.
+    """
+
+    session = prepare_session(cookies, user_agent)
+
+    # Step 0: Authorize the mobile app
+    session_ctx = authorize_mobileapp(session)
     # Step 1: Initialize the mobile app registration
-    secret_key = initialize_mobileapp_registration(session)["SecretKey"]
+    secret_key = initialize_mobileapp_registration(session, session_ctx)["SecretKey"]
     totp = pyotp.TOTP(secret_key)
     # Step 2: Add security info
-    verification_context = add_security_info(session, secret_key)["VerificationContext"]
+    verification_context = add_security_info(session, secret_key, session_ctx)["VerificationContext"]
     # Step 3: Verify the security info
-    verify_security_info(session, verification_context, totp.now())
+    verify_security_info(session, verification_context, totp.now(), session_ctx)
+    return secret_key
