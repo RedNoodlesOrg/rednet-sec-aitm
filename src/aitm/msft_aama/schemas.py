@@ -43,3 +43,23 @@ VERIFY_SECURITY_INFO_SCHEMA = {
     },
     "required": ["Type", "VerificationState", "ErrorCode"],
 }
+
+AUTHORIZE_MOBILE_APP_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "isAuthorized": {"type": "boolean"},
+        "requireMfa": {"type": "boolean"},
+        "promptForLogin": {"type": "boolean"},
+        "hasMfaClaim": {"type": "boolean"},
+        "authContextTags": {"type": "array", "items": {}},
+        "requiresProofUpCodeParam": {"type": "boolean"},
+        "isMyStarEnabled": {"type": "boolean"},
+        "requireNgcMfa": {"type": "boolean"},
+        "sessionCtx": {"type": "string"},
+    },
+    "required": [
+        "isAuthorized",
+        "sessionCtx",
+    ],
+}
