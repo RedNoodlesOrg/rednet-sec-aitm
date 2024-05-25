@@ -17,6 +17,7 @@ dependencies = [
     "jsonschema>=4.22.0",
     "requests>=2.31.0",
     "requests-oauthlib>=2.0.0",
+    "transitions>=0.9.1",
 ]
 
 [tool.project-customizations.docs]
@@ -52,6 +53,7 @@ dev = [
     "requests-mock>=1.12.1",
     "hypothesis>=6.102.4",
     "hypothesis-jsonschema>=0.23.1",
+    "pytest-asyncio>=0.23.7",
 ]
 docs = [
     "sphinx>=7.3.7",
