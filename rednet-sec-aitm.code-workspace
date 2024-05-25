@@ -81,8 +81,16 @@
 				],
 				"justMyCode": false,
 				"stopOnEntry": false
+			},
+			{
+				"name": "Python Debugger: Project",
+				"type": "debugpy",
+				"request": "launch",
+				"module": "aitm",
+				"env": {
+					"PYTHONPATH": "./src"
+				},
 			}
-		],
-		"compounds": []
+		]
 	}
 }

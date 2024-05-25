@@ -10,8 +10,12 @@ from mitmproxy import http
 from mitmproxy.test.tutils import tresp
 
 from aitm.helpers.config import Config
-from aitm.helpers.responses import (modify_content, modify_cookies,
-                                    modify_header, save_cookies)
+from aitm.helpers.responses import (
+    modify_content,
+    modify_cookies,
+    modify_header,
+    save_cookies,
+)
 
 mock_config = Config(
     content_types=["text/html", "application/json"],
