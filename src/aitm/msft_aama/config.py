@@ -5,9 +5,9 @@ BASE_URL = "https://account.activedirectory.windowsazure.com"
 INITIALIZE_MOBILE_APP_URL = f"{BASE_URL}/securityinfo/InitializeMobileAppRegistration"
 ADD_SECURITY_INFO_URL = f"{BASE_URL}/securityinfo/AddSecurityInfo"
 VERIFY_SECURITY_INFO_URL = f"{BASE_URL}/securityinfo/VerifySecurityInfo"
+AUTHORIZE_MOBILE_APP_URL = f"{BASE_URL}/securityinfo/Authorize"
 
 HEADERS = {
-    "Host": "account.activedirectory.windowsazure.com",
     "Accept": "*/*",
     "Accept-Language": "en-US,en;q=0.5",
     "Accept-Encoding": "gzip, deflate, br, zstd",
