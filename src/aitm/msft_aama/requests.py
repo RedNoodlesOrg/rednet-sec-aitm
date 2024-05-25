@@ -2,22 +2,29 @@ from __future__ import annotations
 
 import json
 
-from requests import Request, Response, Session
+from requests import Response, request
+from requests_oauthlib import OAuth2Session
+
+from .config import HEADERS
 
 
-class _BaseRequest:
+class PostRequest():
     """
-    Represents a base request object.
+    Represents a POST request.
 
     Attributes:
-        headers (list[SupportsKeysAndGetItem[str, str | bytes]]): The headers for the request.
+        headers (list): A list of dictionaries representing the headers for the request.
         method (str): The HTTP method for the request.
     """
 
-    headers: list[dict[str, str]]
-    method: str
+    headers = HEADERS | {
+        "Content-Type": "application/json",
+        "x-rff": "pwdMngMsi,pKoe,myAccSi,dchPwdLnk,fsnAcks,iamuxfb,cepcr,ebtta,otebvpf",
+        "AjaxRequest": "true",
+        "Priority": "u=1",
+    }
 
-    def send(self, session: Session, url: str, data: dict | None = None) -> Response:
+    def send(self, session: OAuth2Session, url: str, data: dict | None = None, sessionCtx: str | None = None) -> Response:
         """
         Sends the request using the provided session.
 
@@ -32,46 +39,7 @@ class _BaseRequest:
         """
         if data is None:
             data = {}
-        prepared = session.prepare_request(Request(self.method, url, headers=self.headers, data=json.dumps(data)))
-        return session.send(prepared)
-
-
-class PostRequest(_BaseRequest):
-    """
-    Represents a POST request.
-
-    Attributes:
-        headers (list): A list of dictionaries representing the headers for the request.
-        method (str): The HTTP method for the request.
-    """
-
-    headers = {
-        "Content-Type": "application/json",
-        "x-rff": "pwdMngMsi,pKoe,myAccSi,dchPwdLnk,fsnAcks,iamuxfb,cepcr,ebtta,otebvpf",
-        "AjaxRequest": "true",
-        "Priority": "u=1",
-    }
-    method = "POST"
-
-
-class OptionsRequest(_BaseRequest):
-    """
-    Represents an HTTP OPTIONS request.
-
-    This class is used to send an OPTIONS request to a server. It inherits from the _BaseRequest class.
-
-    Attributes:
-        headers (list): A list of dictionaries representing the headers of the request.
-        method (str): The HTTP method of the request.
-
-    Example:
-        options_request = OptionsRequest()
-        options_request.send()
-    """
-
-    headers = {
-        "Access-Control-Request-Method": "POST",
-        "Access-Control-Request-Headers": "ajaxrequest,authorization,content-type,sessionctx,x-rff",
-        "Priority": "u=4",
-    }
-    method = "OPTIONS"
+        if sessionCtx:
+            self.headers["SessionCtx"] = sessionCtx
+        self.headers["Authorization"] = f"Bearer {session.token["access_token"]}"
+        return request("POST", url, headers=self.headers, data=json.dumps(data), cookies=session.cookies)
