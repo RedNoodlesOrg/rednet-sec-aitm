@@ -5,7 +5,7 @@
 groups = ["default", "dev", "docs"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:6a2828620e174fd10ee27b1ec6bc26e68ed2283cb745677253067d60bc85063e"
+content_hash = "sha256:3906f28282d5d8df45802651fb971833ef75f89dfd8ac6af0905c23bbce6b1a5"
 
 [[package]]
 name = "aioquic"
@@ -1172,6 +1172,17 @@ files = [
 ]
 
 [[package]]
+name = "oauthlib"
+version = "3.2.2"
+requires_python = ">=3.6"
+summary = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
+groups = ["default"]
+files = [
+    {file = "oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca"},
+    {file = "oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918"},
+]
+
+[[package]]
 name = "packaging"
 version = "24.0"
 requires_python = ">=3.7"
@@ -1662,6 +1673,21 @@ dependencies = [
 files = [
     {file = "requests-mock-1.12.1.tar.gz", hash = "sha256:e9e12e333b525156e82a3c852f22016b9158220d2f47454de9cae8a77d371401"},
     {file = "requests_mock-1.12.1-py2.py3-none-any.whl", hash = "sha256:b1e37054004cdd5e56c84454cc7df12b25f90f382159087f4b6915aaeef39563"},
+]
+
+[[package]]
+name = "requests-oauthlib"
+version = "2.0.0"
+requires_python = ">=3.4"
+summary = "OAuthlib authentication support for Requests."
+groups = ["default"]
+dependencies = [
+    "oauthlib>=3.0.0",
+    "requests>=2.0.0",
+]
+files = [
+    {file = "requests-oauthlib-2.0.0.tar.gz", hash = "sha256:b3dffaebd884d8cd778494369603a9e7b58d29111bf6b41bdc2dcd87203af4e9"},
+    {file = "requests_oauthlib-2.0.0-py2.py3-none-any.whl", hash = "sha256:7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36"},
 ]
 
 [[package]]
