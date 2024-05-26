@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from aitm.msft_aama.state_machine import RegistrationStateMachine
+from aitm.msft_aama.state_machine import StateMachine as RegistrationStateMachine
 
 
 @pytest.fixture
