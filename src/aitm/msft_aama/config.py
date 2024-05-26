@@ -39,3 +39,38 @@ ACCESS_SCOPES = [
     "https://graph.microsoft.com/.default openid",
     "0000000c-0000-0000-c000-000000000000/.default openid",
 ]
+STATES = [
+    "IDLE",
+    "PREPARING_SESSION",
+    "AUTHORIZING_REGISTRATION",
+    "INITIALIZING_REGISTRATION",
+    "ADDING_INFO",
+    "VERIFYING_INFO",
+    "COMPLETED",
+    "ERROR",
+]
+TRANSITIONS = [
+    {"trigger": "session_captured", "source": "IDLE", "dest": "PREPARING_SESSION", "after": "on_session_captured"},
+    {
+        "trigger": "session_prepared",
+        "source": "PREPARING_SESSION",
+        "dest": "AUTHORIZING_REGISTRATION",
+        "after": "on_session_prepared",
+    },
+    {
+        "trigger": "registration_authorized",
+        "source": "AUTHORIZING_REGISTRATION",
+        "dest": "INITIALIZING_REGISTRATION",
+        "after": "on_registration_authorized",
+    },
+    {
+        "trigger": "registration_initialized",
+        "source": "INITIALIZING_REGISTRATION",
+        "dest": "ADDING_INFO",
+        "after": "on_registration_initialized",
+    },
+    {"trigger": "info_added", "source": "ADDING_INFO", "dest": "VERIFYING_INFO", "after": "on_info_added"},
+    {"trigger": "info_verified", "source": "VERIFYING_INFO", "dest": "COMPLETED", "after": "on_info_verified"},
+    {"trigger": "event_emitted", "source": ["COMPLETED", "ERROR"], "dest": "IDLE", "after": "on_event_emitted"},
+    {"trigger": "exception_raised", "source": "*", "dest": "ERROR", "after": "on_exception_raised"},
+]
