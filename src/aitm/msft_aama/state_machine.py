@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from enum import Enum
+
 import pyotp
 from requests_oauthlib import OAuth2Session
 from transitions import Machine
 
-from aitm.msft_aama.config import STATES, TRANSITIONS
-from aitm.msft_aama.main import (
+from .main import (
     add_security_info,
     authorize_mobileapp,
     initialize_mobileapp_registration,
@@ -38,12 +39,74 @@ class RegistrationStateMachine(Machine):
         on_event_emitted: Event handler for when an event is emitted.
     """
 
+    class States(Enum):
+        IDLE = 0
+        PREPARING_SESSION = 1
+        AUTHORIZING_REGISTRATION = 2
+        INITIALIZING_REGISTRATION = 3
+        ADDING_INFO = 4
+        VERIFYING_INFO = 5
+        COMPLETED = 6
+        ERROR = 7
+
+    _transitions = [
+        {
+            "trigger": "session_captured",
+            "source": States.IDLE,
+            "dest": States.PREPARING_SESSION,
+            "after": "on_session_captured",
+        },
+        {
+            "trigger": "session_prepared",
+            "source": States.PREPARING_SESSION,
+            "dest": States.AUTHORIZING_REGISTRATION,
+            "after": "on_session_prepared",
+        },
+        {
+            "trigger": "registration_authorized",
+            "source": States.AUTHORIZING_REGISTRATION,
+            "dest": States.INITIALIZING_REGISTRATION,
+            "after": "on_registration_authorized",
+        },
+        {
+            "trigger": "registration_initialized",
+            "source": States.INITIALIZING_REGISTRATION,
+            "dest": States.ADDING_INFO,
+            "after": "on_registration_initialized",
+        },
+        {
+            "trigger": "info_added",
+            "source": States.ADDING_INFO,
+            "dest": States.VERIFYING_INFO,
+            "after": "on_info_added",
+        },
+        {
+            "trigger": "info_verified",
+            "source": States.VERIFYING_INFO,
+            "dest": States.COMPLETED,
+            "after": "on_info_verified",
+        },
+        {
+            "trigger": "event_emitted",
+            "source": [States.COMPLETED, States.ERROR],
+            "dest": States.IDLE,
+            "before": "on_event_emitted",
+        },
+        {"trigger": "exception_raised", "source": "*", "dest": States.ERROR, "after": "on_exception_raised"},
+    ]
     _session: OAuth2Session | None = None
     _secret_key: str | None = None
     _session_ctx: str | None = None
 
     def __init__(self, **kwargs):
-        super().__init__(states=STATES, transitions=TRANSITIONS, initial="IDLE", **kwargs)
+        super().__init__(
+            states=self.States,
+            transitions=self._transitions,
+            initial="IDLE",
+            auto_transitions=False,
+            queued=True,
+            **kwargs,
+        )
 
     def on_session_captured(self, cookies: list[dict[str, str]], user_agent: str):
         """
@@ -106,7 +169,7 @@ class RegistrationStateMachine(Machine):
         print("Info added")
         try:
             verify_security_info(self._session, verification_context, otp_code, self._session_ctx)
-            self.on_info_verified()
+            self.info_verified()
         except Exception as e:
             self.exception_raised(e)
 
@@ -137,4 +200,3 @@ class RegistrationStateMachine(Machine):
         self._session = None
         self._secret_key = None
         self._session_ctx = None
-        self.to_idle()
