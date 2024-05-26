@@ -6,7 +6,7 @@ import pyotp
 from requests_oauthlib import OAuth2Session
 from transitions import Machine
 
-from .main import (
+from aitm.msft_aama.state_machine.actions import (
     add_security_info,
     authorize_mobileapp,
     initialize_mobileapp_registration,
@@ -15,7 +15,7 @@ from .main import (
 )
 
 
-class RegistrationStateMachine(Machine):
+class StateMachine(Machine):
     """
     Represents a state machine for the registration process.
 
