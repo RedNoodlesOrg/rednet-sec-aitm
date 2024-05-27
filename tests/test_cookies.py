@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-from aitm.helpers.config import Config
-from aitm.helpers.cookies import parse_cookies
+from aitm.proxy.utils.config import Config
+from aitm.proxy.utils.cookies import parse_cookies
 
 mock_config = Config()
 mock_config.targets = [
@@ -27,8 +27,8 @@ def cookie_input():
     return cookie
 
 
-@patch("aitm.helpers.cookies.config", mock_config)
-def test_parse_cookies(cookie_input):
+@patch("aitm.proxy.utils.cookies.get_config", return_value=mock_config)
+def test_parse_cookies(mock_get_config, cookie_input):
     """Test parsing of cookies with domain replacements."""
     parsed_cookies = parse_cookies(cookie_input)
 
@@ -50,7 +50,7 @@ def test_parse_cookies_no_domain(cookie_input):
     del cookie_input["session"]["domain"]
     del cookie_input["pref"]["domain"]
 
-    with patch("aitm.helpers.config.Config", mock_config):
+    with patch("aitm.proxy.utils.cookies.get_config", return_value=mock_config):
         parsed_cookies = parse_cookies(cookie_input)
 
     assert len(parsed_cookies) == 2  # Ensure two cookies are parsed

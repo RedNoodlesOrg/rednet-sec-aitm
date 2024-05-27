@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from aitm.helpers.config import Config
+from aitm.proxy.utils.config import Config
 
 
 def test_initialization():

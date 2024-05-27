@@ -4,8 +4,11 @@ Configuration script for defining proxy and modification targets.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Literal, TypeAlias, TypedDict
+
+_config_singelton = None
 
 
 class Target(TypedDict):
@@ -70,6 +73,30 @@ class Config:
     _target_proxies: list[str] = field(default_factory=list)
     mfa_claim: str = ""
 
+    @staticmethod
+    def from_json(json_file: str) -> Config:
+        with open(json_file) as file:
+            config = json.load(file)
+
+        cfg = Config()
+        # Read general configuration
+        general = config.get("general", {})
+        cfg.mfa_claim = general.get("mfa_claim", "")
+        cfg.auth_url = general.get("auth_url", [])
+        cfg.local_upstream_hostname = general.get("local_upstream_hostname", "")
+        cfg.local_upstream_scheme = general.get("local_upstream_scheme", "http")
+
+        # Read targets
+        cfg._targets = config.get("targets", [])
+
+        # Read content_types
+        cfg.content_types = config.get("content_types", [])
+
+        # Read custom_modifications
+        cfg.custom_modifications = config.get("custom_modifications", [])
+
+        return cfg
+
     @property
     def targets(self) -> list[Target]:
         """
@@ -122,3 +149,20 @@ class Config:
             list[str]: The list of target proxy addresses.
         """
         return self._target_proxies
+
+
+def get_config(json_file: str = "config.json") -> Config:
+    """
+    Retrieves the configuration object.
+
+    Args:
+        json_file (str, optional): The path to the JSON file containing the configuration. Defaults to "config.json".
+
+    Returns:
+        Config: The configuration object.
+
+    """
+    global _config_singelton
+    if _config_singelton is None:
+        _config_singelton = Config.from_json(json_file)
+    return _config_singelton

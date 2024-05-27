@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from mitmproxy.http import HTTPFlow
 
-from ..aitm_config import config
+from .config import get_config
 
 
 # TODO: Remove dependency on config.targets
@@ -27,7 +27,7 @@ def modify_header(flow: HTTPFlow, header: str) -> None:
     else:
         value = flow.request.headers.get(header)
         if value is not None:
-            for target in config.targets:
+            for target in get_config().targets:
                 value = value.replace(target["proxy"], target["origin"])
             flow.request.headers[header] = value
 
@@ -45,7 +45,7 @@ def modify_query(flow: HTTPFlow, query_key: str) -> None:
     """
     value = flow.request.query.get(query_key)
     if value is not None:
-        for target in config.targets:
+        for target in get_config().targets:
             value = value.replace(target["proxy"], target["origin"])
         flow.request.query[query_key] = value
 
@@ -87,12 +87,12 @@ def modify_host(flow: HTTPFlow) -> None:
         origin = None
         if port is not None:
             origin = next(
-                (target["origin"] for target in config.targets if target["port"] == port),
+                (target["origin"] for target in get_config().targets if target["port"] == port),
                 None,
             )
-        elif host in config.target_proxies:
+        elif host in get_config().target_proxies:
             origin = next(
-                (target["origin"] for target in config.targets if target["proxy"] == host),
+                (target["origin"] for target in get_config().targets if target["proxy"] == host),
                 None,
             )
         if origin is not None:

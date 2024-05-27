@@ -9,7 +9,7 @@ from jsonschema import validate
 from requests import Session
 from requests_oauthlib import OAuth2Session
 
-from ..aitm_config import config
+from ..proxy.utils import get_config
 from .config import AUTH_SCOPES, AUTH_URL, CLIENT_ID, REDIRECT_URI
 from .requests import PostRequest
 
@@ -114,6 +114,6 @@ def get_authorization_url(auth_session: OAuth2Session) -> tuple[str, dict[str, l
     authorization_url, _ = auth_session.authorization_url(AUTH_URL, access_type="offline")
     parsed_url = urlparse(authorization_url)
     params = parse_qs(parsed_url.query)
-    params["claims"] = config.mfa_claim
+    params["claims"] = get_config().mfa_claim
     base_url = parsed_url._replace(query=None).geturl()
     return base_url, params

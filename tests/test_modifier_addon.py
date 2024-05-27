@@ -6,8 +6,8 @@ import pytest
 from mitmproxy.test.tflow import tflow
 from mitmproxy.test.tutils import treq
 
-from aitm.helpers.config import Config
-from aitm.modifier_addon import ModifierAddon
+from aitm.proxy.modifier_addon import ModifierAddon
+from aitm.proxy.utils.config import Config
 
 mock_config = Config(mfa_claim="mock_mfa_claim", auth_url=["/mock/auth/url"])
 mock_config.targets = [{"origin": "example.com", "proxy": "proxy.example.com"}]
@@ -15,7 +15,7 @@ mock_config.targets = [{"origin": "example.com", "proxy": "proxy.example.com"}]
 
 @pytest.fixture
 def modifier_addon():
-    with patch("aitm.modifier_addon.config", mock_config):
+    with patch("aitm.proxy.modifier_addon.get_config", return_value=mock_config):
         addon = ModifierAddon()
     return addon
 

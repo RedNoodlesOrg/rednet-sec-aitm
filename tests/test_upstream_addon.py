@@ -5,8 +5,8 @@ from unittest.mock import patch
 import pytest
 from mitmproxy.test.tflow import tflow
 
-from aitm.helpers.config import Config
-from aitm.upstream_addon import UpstreamAddon
+from aitm.proxy.upstream_addon import UpstreamAddon
+from aitm.proxy.utils.config import Config
 
 mock_config = Config(local_upstream_hostname="localhost", local_upstream_scheme="http")
 mock_config.targets = [{"origin": "example.com", "proxy": "proxy.example.com", "port": 8080}]
@@ -28,7 +28,7 @@ def mock_flow_factory():
 
 @pytest.fixture
 def upstream_addon():
-    with patch("aitm.upstream_addon.config", mock_config):
+    with patch("aitm.proxy.upstream_addon.get_config", return_value=mock_config):
         addon = UpstreamAddon()
     return addon
 

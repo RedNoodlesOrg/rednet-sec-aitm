@@ -9,8 +9,8 @@ import pytest
 from mitmproxy import http
 from mitmproxy.test.tutils import tresp
 
-from aitm.helpers.config import Config
-from aitm.helpers.responses import (
+from aitm.proxy.utils.config import Config
+from aitm.proxy.utils.responses import (
     modify_content,
     modify_cookies,
     modify_header,
@@ -63,27 +63,27 @@ def test_invalid_flow(mock_flow):
     assert not modify_cookies(mock_flow)
 
 
-@patch("aitm.helpers.responses.config", mock_config)
-def test_modify_header(mock_flow):
+@patch("aitm.proxy.utils.responses.get_config", return_value=mock_config)
+def test_modify_header(mock_get_config, mock_flow):
     modify_header(mock_flow, "Location")
     assert mock_flow.response.headers["Location"] == "proxy.example.com"
 
 
-@patch("aitm.helpers.responses.config", mock_config)
-def test_modify_content(mock_flow):
+@patch("aitm.proxy.utils.responses.get_config", return_value=mock_config)
+def test_modify_content(mock_get_config, mock_flow):
     mock_flow.response.headers["Content-Type"] = "application/json"
     modify_content(mock_flow)
     assert "Response from https://proxy.sample.com with session=abcd" in mock_flow.response.text
 
 
-@patch("aitm.helpers.responses.config", mock_config)
-def test_modify_cookies(mock_flow):
+@patch("aitm.proxy.utils.responses.get_config", return_value=mock_config)
+def test_modify_cookies(mock_get_config, mock_flow):
     modify_cookies(mock_flow)
     assert any("Domain=proxy.example.com" in cookie for cookie in mock_flow.response.headers.get_all("set-cookie"))
 
 
-@patch("aitm.helpers.responses.config", mock_config)
-def test_save_cookies(mock_flow):
+@patch("aitm.proxy.utils.responses.get_config", return_value=mock_config)
+def test_save_cookies(mock_get_config, mock_flow):
     simple_cookie = SimpleCookie()
     save_cookies(mock_flow, simple_cookie)
     assert "session" in simple_cookie

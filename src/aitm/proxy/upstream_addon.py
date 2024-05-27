@@ -8,7 +8,7 @@ import logging
 
 from mitmproxy.http import HTTPFlow
 
-from .aitm_config import config
+from .utils import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def proxy_port(flow: HTTPFlow) -> int | None:
     Returns:
         int | None: The port number for the upstream proxy, or None if no match is found.
     """
-    for target in config.targets:
+    for target in get_config().targets:
         if target["proxy"] == flow.request.host:
             return target["port"]
     return None
@@ -52,14 +52,14 @@ class UpstreamAddon:
             flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
                                             the client request and server response.
         """
-        if flow.request.host in config.target_proxies:
+        if flow.request.host in get_config().target_proxies:
             port = proxy_port(flow)
             if port is not None:
-                flow.server_conn.via = config.local_upstream_scheme, (
-                    config.local_upstream_hostname,
+                flow.server_conn.via = get_config().local_upstream_scheme, (
+                    get_config().local_upstream_hostname,
                     port,
                 )
-                logging.info(f"Routing: {flow.request.host} -> {config.local_upstream_hostname}:{port}")
-                flow.request.host = config.local_upstream_hostname
+                logging.info(f"Routing: {flow.request.host} -> {get_config().local_upstream_hostname}:{port}")
+                flow.request.host = get_config().local_upstream_hostname
                 flow.request.port = port
-                flow.request.scheme = config.local_upstream_scheme
+                flow.request.scheme = get_config().local_upstream_scheme

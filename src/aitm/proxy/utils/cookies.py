@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from http.cookies import SimpleCookie
 
-from ..aitm_config import config
+from .config import get_config
 
 
 # TODO: Remove dependency on config.targets
@@ -29,7 +29,7 @@ def parse_cookies(cookies: SimpleCookie) -> list[dict[str, str]]:
         cookie = {"name": name, "value": morsel.value}
         for k, v in morsel.items():
             if k == "domain":
-                for target in config.targets:
+                for target in get_config().targets:
                     v = v.replace(target["proxy"], target["origin"])
             cookie[k] = v
         parsed_cookies.append(cookie)
