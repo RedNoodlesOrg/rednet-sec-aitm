@@ -4,7 +4,8 @@ import asyncio
 
 import pytest
 
-from aitm.observer import Event, EventEmitter, Observer
+from aitm.events import EventEmitter
+from simple_observer import Event, Observer
 
 
 class TestObserver(Observer):
