@@ -5,7 +5,7 @@ import json
 from requests import Session
 from requests_oauthlib import OAuth2Session
 
-from aitm.msft_aama.config import (
+from aitm.oauth2.config import (
     ACCESS_SCOPES,
     ADD_SECURITY_INFO_URL,
     AUTHORIZE_MOBILE_APP_URL,
@@ -15,13 +15,13 @@ from aitm.msft_aama.config import (
     TOKEN_URL,
     VERIFY_SECURITY_INFO_URL,
 )
-from aitm.msft_aama.schemas import (
+from aitm.oauth2.schemas import (
     ADD_SECURITY_INFO_SCHEMA,
     AUTHORIZE_MOBILE_APP_SCHEMA,
     INITIALIZE_MOBILE_APP_SCHEMA,
     VERIFY_SECURITY_INFO_SCHEMA,
 )
-from aitm.msft_aama.utils import (
+from aitm.oauth2.utils import (
     create_oauth2_session,
     get_authorization_url,
     get_tenant_id,

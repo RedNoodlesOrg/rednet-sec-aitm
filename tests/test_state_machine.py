@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from aitm.msft_aama.state_machine import StateMachine as RegistrationStateMachine
+from aitm.oauth2.state_machine import StateMachine as RegistrationStateMachine
 
 
 @pytest.fixture
@@ -13,16 +13,16 @@ def state_machine():
 
 
 @patch(
-    "aitm.msft_aama.state_machine.simple_state_machine.add_security_info",
+    "aitm.oauth2.state_machine.simple_state_machine.add_security_info",
     return_value={"VerificationContext": "verification_context"},
 )
-@patch("aitm.msft_aama.state_machine.simple_state_machine.authorize_mobileapp", return_value="session_ctx")
+@patch("aitm.oauth2.state_machine.simple_state_machine.authorize_mobileapp", return_value="session_ctx")
 @patch(
-    "aitm.msft_aama.state_machine.simple_state_machine.initialize_mobileapp_registration",
+    "aitm.oauth2.state_machine.simple_state_machine.initialize_mobileapp_registration",
     return_value={"SecretKey": "5jm2hkk5jfn7s6dj"},
 )
-@patch("aitm.msft_aama.state_machine.simple_state_machine.prepare_session", return_value="session")
-@patch("aitm.msft_aama.state_machine.simple_state_machine.verify_security_info", return_value="")
+@patch("aitm.oauth2.state_machine.simple_state_machine.prepare_session", return_value="session")
+@patch("aitm.oauth2.state_machine.simple_state_machine.verify_security_info", return_value="")
 def test(
     mock_verify_security_info: MagicMock,
     mock_prepare_session: MagicMock,
