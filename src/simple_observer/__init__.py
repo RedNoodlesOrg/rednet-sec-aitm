@@ -1,3 +1,5 @@
-from .observer import Observer
+from __future__ import annotations
+
 from .event import Event
+from .observer import Observer
 from .subject import Subject

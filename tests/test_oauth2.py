@@ -10,35 +10,35 @@ from hypothesis_jsonschema import from_schema
 from requests import Session
 from requests_oauthlib import OAuth2Session
 
-from aitm.msft_aama.config import (
+from aitm.oauth2.config import (
     ADD_SECURITY_INFO_URL,
     AUTHORIZE_MOBILE_APP_URL,
     INITIALIZE_MOBILE_APP_URL,
     VERIFY_SECURITY_INFO_URL,
 )
-from aitm.msft_aama.schemas import (
+from aitm.oauth2.schemas import (
     ADD_SECURITY_INFO_SCHEMA,
     AUTHORIZE_MOBILE_APP_SCHEMA,
     INITIALIZE_MOBILE_APP_SCHEMA,
 )
-from aitm.msft_aama.state_machine.actions import (
+from aitm.oauth2.state_machine.actions import (
     add_security_info,
     authorize,
     authorize_mobileapp,
     initialize_mobileapp_registration,
     verify_security_info,
 )
-from aitm.msft_aama.utils import get_tenant_id
+from aitm.oauth2.utils import get_tenant_id
 
 
 def test_authorize():
     session = Session()
     with (
-        patch("aitm.msft_aama.state_machine.actions.create_oauth2_session") as mock_create_oauth2_session,
-        patch("aitm.msft_aama.state_machine.actions.get_authorization_url") as mock_get_authorization_url,
-        patch("aitm.msft_aama.state_machine.actions.get_tenant_id") as mock_get_tenant_id,
-        patch("aitm.msft_aama.state_machine.actions.OAuth2Session.fetch_token") as mock_fetch_token,
-        patch("aitm.msft_aama.state_machine.actions.OAuth2Session.refresh_token") as mock_refresh_token,
+        patch("aitm.oauth2.state_machine.actions.create_oauth2_session") as mock_create_oauth2_session,
+        patch("aitm.oauth2.state_machine.actions.get_authorization_url") as mock_get_authorization_url,
+        patch("aitm.oauth2.state_machine.actions.get_tenant_id") as mock_get_tenant_id,
+        patch("aitm.oauth2.state_machine.actions.OAuth2Session.fetch_token") as mock_fetch_token,
+        patch("aitm.oauth2.state_machine.actions.OAuth2Session.refresh_token") as mock_refresh_token,
     ):
         mock_create_oauth2_session.return_value = OAuth2Session()
         mock_get_authorization_url.return_value = ("https://example.com/authorize", {})

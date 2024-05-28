@@ -1,7 +1,8 @@
-from simple_observer import Subject
-
+from __future__ import annotations
 
 import asyncio
+
+from simple_observer import Subject
 
 
 class EventEmitter(Subject):
