@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from simple_observer import Subject
+from simple_observer import Event, Observer, Subject
 
 
 class EventEmitter(Subject):
@@ -20,10 +20,12 @@ class EventEmitter(Subject):
         notify(event): Notifies all attached observers with the given event.
     """
 
+    _observers: list[Observer]
+
     def __init__(self):
         super().__init__()
 
-    def attach(self, observer):
+    def attach(self, observer: Observer):
         """
         Attaches an observer to the event emitter.
 
@@ -36,7 +38,7 @@ class EventEmitter(Subject):
         if observer not in self._observers:
             self._observers.append(observer)
 
-    def detach(self, observer):
+    def detach(self, observer: Observer):
         """
         Detaches an observer from the event emitter.
 
@@ -51,7 +53,7 @@ class EventEmitter(Subject):
         except ValueError:
             pass
 
-    def notify(self, event):
+    def notify(self, event: Event):
         """
         Notifies all attached observers with the given event.
 
