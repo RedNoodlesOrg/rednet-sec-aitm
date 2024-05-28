@@ -20,4 +20,4 @@ class Observer(ABC):
             subject: The subject that triggered the event.
             event: The event that occurred.
         """
-        pass
+        raise NotImplementedError

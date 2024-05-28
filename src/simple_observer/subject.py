@@ -9,12 +9,12 @@ class Subject(ABC):
 
     @abstractmethod
     def attach(self, observer):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def detach(self, observer):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def notify(self, event):
-        pass
+        raise NotImplementedError

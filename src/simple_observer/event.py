@@ -15,3 +15,6 @@ class Event:
     def __init__(self, event_type, data=None):
         self.event_type = event_type
         self.data = data
+
+    def __str__(self) -> str:
+        return f"Event type: {self.event_type}, data: {self.data}"
