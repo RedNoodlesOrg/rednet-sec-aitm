@@ -1,37 +1,61 @@
 from __future__ import annotations
 
 import json
-import os
 
-import pyotp
 from requests import Session
 from requests_oauthlib import OAuth2Session
 
-from aitm.msft_aama.config import HEADERS
-
-from .config import (
+from aitm.oauth2.config import (
     ACCESS_SCOPES,
     ADD_SECURITY_INFO_URL,
     AUTHORIZE_MOBILE_APP_URL,
+    HEADERS,
     INITIALIZE_MOBILE_APP_URL,
     TENANT_TOKEN_URL,
     TOKEN_URL,
     VERIFY_SECURITY_INFO_URL,
 )
-from .schemas import (
+from aitm.oauth2.schemas import (
     ADD_SECURITY_INFO_SCHEMA,
     AUTHORIZE_MOBILE_APP_SCHEMA,
     INITIALIZE_MOBILE_APP_SCHEMA,
     VERIFY_SECURITY_INFO_SCHEMA,
 )
-from .utils import (
+from aitm.oauth2.utils import (
     create_oauth2_session,
     get_authorization_url,
     get_tenant_id,
     send_request,
 )
 
-os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
+
+def add_security_info(session: Session, secret_key: str, session_ctx: str) -> dict:
+    """
+    Adds security information to the session.
+
+    Args:
+        session (Session): The session object.
+        secret_key (str): The secret key to be added.
+        session_ctx (str): The session context.
+
+    Returns:
+        dict: The response from the server.
+
+    Raises:
+        AssertionError: If the response type, verification state, or error code is not as expected.
+    """
+
+    data = {
+        "Type": 3,
+        "Data": json.dumps({"secretKey": secret_key, "affinityRegion": None, "isResendNotificationChallenge": False}),
+    }
+    response = send_request(
+        session=session, url=ADD_SECURITY_INFO_URL, data=data, schema=ADD_SECURITY_INFO_SCHEMA, sessionCtx=session_ctx
+    )
+    assert response["Type"] == 3
+    assert response["VerificationState"] == 1
+    assert response["ErrorCode"] == 0
+    return response
 
 
 def authorize_mobileapp(session: OAuth2Session) -> str:
@@ -78,69 +102,6 @@ def initialize_mobileapp_registration(session: OAuth2Session, session_ctx: str) 
         sessionCtx=session_ctx,
     )
     assert response["RegistrationType"] == 3
-    return response
-
-
-def add_security_info(session: Session, secret_key: str, session_ctx: str) -> dict:
-    """
-    Adds security information to the session.
-
-    Args:
-        session (Session): The session object.
-        secret_key (str): The secret key to be added.
-        session_ctx (str): The session context.
-
-    Returns:
-        dict: The response from the server.
-
-    Raises:
-        AssertionError: If the response type, verification state, or error code is not as expected.
-    """
-
-    data = {
-        "Type": 3,
-        "Data": json.dumps({"secretKey": secret_key, "affinityRegion": None, "isResendNotificationChallenge": False}),
-    }
-    response = send_request(
-        session=session, url=ADD_SECURITY_INFO_URL, data=data, schema=ADD_SECURITY_INFO_SCHEMA, sessionCtx=session_ctx
-    )
-    assert response["Type"] == 3
-    assert response["VerificationState"] == 1
-    assert response["ErrorCode"] == 0
-    return response
-
-
-def verify_security_info(session: Session, verification_context: str, otp_code: str, session_ctx: str) -> dict:
-    """
-    Verify the security information using the provided session, verification context, OTP code, and session context.
-
-    Args:
-        session (Session): The session object used for making the request.
-        verification_context (str): The verification context.
-        otp_code (str): The OTP code.
-        session_ctx (str): The session context.
-
-    Returns:
-        dict: The response from the verification request.
-
-    Raises:
-        AssertionError: If the response type is not 3, the verification state is not 2, or the error code is not 0.
-    """
-    data = {
-        "Type": 3,
-        "VerificationContext": verification_context,
-        "VerificationData": otp_code,
-    }
-    response = send_request(
-        session=session,
-        url=VERIFY_SECURITY_INFO_URL,
-        data=data,
-        schema=VERIFY_SECURITY_INFO_SCHEMA,
-        sessionCtx=session_ctx,
-    )
-    assert response["Type"] == 3
-    assert response["VerificationState"] == 2
-    assert response["ErrorCode"] == 0
     return response
 
 
@@ -191,27 +152,35 @@ def prepare_session(cookies: list[dict[str, str]], user_agent: str) -> OAuth2Ses
     return authorize(session)
 
 
-def run(cookies: list[dict[str, str]], user_agent: str) -> str:
+def verify_security_info(session: Session, verification_context: str, otp_code: str, session_ctx: str) -> dict:
     """
-    Runs the main process for the mobile app authorization and security info verification.
+    Verify the security information using the provided session, verification context, OTP code, and session context.
 
     Args:
-        cookies (list[dict[str, str]]): A list of cookies for the session.
-        user_agent (str): The user agent string for the session.
+        session (Session): The session object used for making the request.
+        verification_context (str): The verification context.
+        otp_code (str): The OTP code.
+        session_ctx (str): The session context.
 
     Returns:
-        str: The secret key generated during the mobile app registration.
+        dict: The response from the verification request.
+
+    Raises:
+        AssertionError: If the response type is not 3, the verification state is not 2, or the error code is not 0.
     """
-
-    session = prepare_session(cookies, user_agent)
-
-    # Step 0: Authorize the mobile app
-    session_ctx = authorize_mobileapp(session)
-    # Step 1: Initialize the mobile app registration
-    secret_key = initialize_mobileapp_registration(session, session_ctx)["SecretKey"]
-    totp = pyotp.TOTP(secret_key)
-    # Step 2: Add security info
-    verification_context = add_security_info(session, secret_key, session_ctx)["VerificationContext"]
-    # Step 3: Verify the security info
-    verify_security_info(session, verification_context, totp.now(), session_ctx)
-    return secret_key
+    data = {
+        "Type": 3,
+        "VerificationContext": verification_context,
+        "VerificationData": otp_code,
+    }
+    response = send_request(
+        session=session,
+        url=VERIFY_SECURITY_INFO_URL,
+        data=data,
+        schema=VERIFY_SECURITY_INFO_SCHEMA,
+        sessionCtx=session_ctx,
+    )
+    assert response["Type"] == 3
+    assert response["VerificationState"] == 2
+    assert response["ErrorCode"] == 0
+    return response
