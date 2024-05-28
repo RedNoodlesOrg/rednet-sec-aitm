@@ -6,6 +6,7 @@ from enum import Enum
 import pyotp
 from requests_oauthlib import OAuth2Session
 
+from ...events import EventEmitter, MfaMethodRegisteredEvent
 from .actions import (
     add_security_info,
     authorize_mobileapp,
@@ -36,6 +37,8 @@ class SimpleStateMachine:
         start: Begins the registration process.
     """
 
+    event_emitter: EventEmitter
+
     class States(Enum):
         IDLE = 0
         PREPARING_SESSION = 1
@@ -47,6 +50,7 @@ class SimpleStateMachine:
         ERROR = 7
 
     def __init__(self):
+        self.event_emitter = EventEmitter()
         self.state = self.States.IDLE
         self._session: OAuth2Session | None = None
         self._secret_key: str | None = None
@@ -105,11 +109,13 @@ class SimpleStateMachine:
 
     def on_info_verified(self):
         logger.info("Info verified")
+        self.event_emitter.notify(event=MfaMethodRegisteredEvent(secret_key=self._secret_key, success=True))
         self.on_event_emitted()
 
     def on_exception_raised(self, exception):
         logger.error(f"Exception raised: {exception}")
         self.state = self.States.ERROR
+        self.event_emitter.notify(event=MfaMethodRegisteredEvent(secret_key=self._secret_key, success=False))
         self.on_event_emitted()
 
     def on_event_emitted(self):

@@ -10,6 +10,7 @@ import logging
 from mitmproxy import options
 from mitmproxy.tools import dump
 
+from .events import EventListener
 from .proxy.modifier_addon import ModifierAddon
 from .proxy.upstream_addon import UpstreamAddon
 from .proxy.utils import get_config
@@ -38,8 +39,12 @@ async def start_proxy(proxies: list[str]):
         with_termlog=True,
         with_dumper=False,
     )
-
     master.addons.add(UpstreamAddon())
+
+    modifier = ModifierAddon()
+    listener = EventListener()
+    modifier.event_emitter.attach(listener)
+    modifier.state_machine.event_emitter.attach(listener)
     master.addons.add(ModifierAddon())
     master.options.set("block_global=false")
     master.options.set("connection_strategy=lazy")
@@ -48,6 +53,7 @@ async def start_proxy(proxies: list[str]):
 
 
 if __name__ == "__main__":
+
     reverse_proxies = [f"reverse:https://{target['origin']}@{target['port']}" for target in get_config().targets]
     reverse_proxies.append("upstream:https://dummy:8888")
     asyncio.run(start_proxy(reverse_proxies))
