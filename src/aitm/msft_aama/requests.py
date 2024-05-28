@@ -16,11 +16,7 @@ class PostRequest():
         "Priority": "u=1",
     }
 
-    def send(self,
-             session: OAuth2Session,
-             url: str,
-             data: dict | None = None,
-             sessionCtx: str | None = None) -> Response:
+    def send(self, session: OAuth2Session, url: str, data: dict | None = None, sessionCtx: str | None = None) -> Response:
         """
         Sends the request using the provided session.
 

