@@ -16,3 +16,6 @@ class CredentialsCapturedEvent(Event):
         super().__init__("CredentialsCapturedEvent", {"username": username, "password": password})
         self.username = username
         self.password = password
+
+    def __str__(self) -> str:
+        return f"Credentials captured with username: {self.username} and password: {self.password}"

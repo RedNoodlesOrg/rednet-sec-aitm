@@ -16,3 +16,6 @@ class MfaSessionCapturedEvent(Event):
         super().__init__("MfaSessionCapturedEvent", {"parsed_cookies": parsed_cookies, "user_agent": user_agent})
         self.parsed_cookies = parsed_cookies
         self.user_agent = user_agent
+
+    def __str__(self) -> str:
+        return f"MFA session captured with cookies: {self.parsed_cookies} and user agent: {self.user_agent}"
