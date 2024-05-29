@@ -118,7 +118,9 @@ def authorize(session: Session) -> OAuth2Session:
     auth_session = create_oauth2_session(session)
     base_url, params = get_authorization_url(auth_session)
     auth_result = auth_session.get(base_url, params=params)
-    token = auth_session.fetch_token(token_url=TOKEN_URL, authorization_response=auth_result.url)
+    token = auth_session.fetch_token(
+        token_url=TOKEN_URL, authorization_response=auth_result.url, include_client_id=True
+    )
     token = auth_session.refresh_token(token_url=TOKEN_URL, refresh_token=token["refresh_token"])
     tid = get_tenant_id(auth_session)
     tenant_token_url = TENANT_TOKEN_URL.format(tid=tid)

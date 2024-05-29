@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from enum import Enum
 
 import pyotp
@@ -57,6 +58,7 @@ class SimpleStateMachine:
         self._session_ctx: str | None = None
 
     def start(self, cookies: list[dict[str, str]], user_agent: str):
+        os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
         self.state = self.States.PREPARING_SESSION
         self.on_session_captured(cookies, user_agent)
 

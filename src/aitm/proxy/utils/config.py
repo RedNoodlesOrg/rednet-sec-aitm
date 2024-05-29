@@ -87,7 +87,7 @@ class Config:
         cfg.local_upstream_scheme = general.get("local_upstream_scheme", "http")
 
         # Read targets
-        cfg._targets = config.get("targets", [])
+        cfg.targets = config.get("targets", [])
 
         # Read content_types
         cfg.content_types = config.get("content_types", [])

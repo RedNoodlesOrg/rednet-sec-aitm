@@ -59,7 +59,7 @@ class UpstreamAddon:
                     get_config().local_upstream_hostname,
                     port,
                 )
-                logging.info(f"Routing: {flow.request.host} -> {get_config().local_upstream_hostname}:{port}")
+                logging.info("Routing: %s -> %s:%s", flow.request.host, get_config().local_upstream_hostname, port)
                 flow.request.host = get_config().local_upstream_hostname
                 flow.request.port = port
                 flow.request.scheme = get_config().local_upstream_scheme
