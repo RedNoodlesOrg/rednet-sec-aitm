@@ -69,12 +69,15 @@ class TestResponses(unittest.TestCase):
 
     def test_modify_header(self):
         modify_header(self.mock_flow, "Location")
+        modify_header(self.mock_flow, "not_exist")
         self.assertEqual(self.mock_flow.response.headers["Location"], "proxy.example.com")
 
     def test_modify_content(self):
         self.mock_flow.response.headers["Content-Type"] = "application/json"
         modify_content(self.mock_flow)
         self.assertIn("Response from https://proxy.sample.com with session=abcd", self.mock_flow.response.text)
+        self.mock_flow.response.headers = {}
+        modify_content(self.mock_flow)
 
     def test_modify_cookies(self):
         modify_cookies(self.mock_flow)
@@ -83,6 +86,8 @@ class TestResponses(unittest.TestCase):
                 "Domain=proxy.example.com" in cookie for cookie in self.mock_flow.response.headers.get_all("set-cookie")
             )
         )
+        self.mock_flow.response.headers = http.Headers()
+        modify_cookies(self.mock_flow)
 
     def test_save_cookies(self):
         simple_cookie = SimpleCookie()

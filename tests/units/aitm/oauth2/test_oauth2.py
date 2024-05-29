@@ -27,12 +27,27 @@ from aitm.oauth2.state_machine.actions import (
     authorize,
     authorize_mobileapp,
     initialize_mobileapp_registration,
+    prepare_session,
     verify_security_info,
 )
 from aitm.oauth2.utils import get_tenant_id
 
 
 class TestOAuth2Actions(unittest.TestCase):
+
+    @patch("aitm.oauth2.state_machine.actions.authorize", side_effect=lambda x: x)
+    def test_prepare_session(self, mock_authorize: MagicMock):
+        cookies = [
+            {
+                "name": "cookie1",
+                "value": "value1",
+                "domain": "example.com",
+            }
+        ]
+        session = prepare_session(cookies, "user_agent")
+        self.assertIsInstance(session, Session)
+        self.assertEqual(session.cookies.get_dict(), {"cookie1": "value1"})
+        mock_authorize.assert_called_once()
 
     @patch("aitm.oauth2.state_machine.actions.create_oauth2_session")
     @patch("aitm.oauth2.state_machine.actions.get_authorization_url")

@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import unittest
 
-from aitm.proxy.utils.config import Config
+from aitm.proxy.utils.config import Config, get_config
 
 
 class TestConfig(unittest.TestCase):
 
     def setUp(self) -> None:
         super().setUp()
+        self.config = get_config()
         self.config = Config()
 
     def tearDown(self) -> None:

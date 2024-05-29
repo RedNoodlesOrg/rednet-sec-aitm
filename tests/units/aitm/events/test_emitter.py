@@ -24,6 +24,7 @@ class TestEventEmitter(unittest.TestCase):
 
     def test_attach_observer(self):
         self.emitter.attach(self.observer)
+        self.emitter.attach(self.observer)  # Should not attach the observer twice
         self.assertIn(self.observer, self.emitter._observers)
 
     def test_detach_observer(self):
