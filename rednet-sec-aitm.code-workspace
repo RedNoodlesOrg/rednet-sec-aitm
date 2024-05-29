@@ -45,11 +45,20 @@
 		"python.autoComplete.extraPaths": [
 			"./src"
 		],
-		"python.testing.unittestEnabled": false,
-		"python.testing.pytestEnabled": true,
+		"python.testing.unittestEnabled": true,
+		"python.testing.unittestArgs": [
+			"-v",
+			"-s",
+			"tests/units/simple_observer",
+			"-s",
+			"tests/units/aitm",
+			"-p",
+			"test_*.py",
+		],
+		"python.testing.pytestEnabled": false,
 		"python.testing.pytestArgs": [
 			"--no-cov",
-			"./tests"
+			"./tests/integration"
 		],
 		"pylint.args": [
 			"--rcfile=pyproject.toml"
@@ -62,7 +71,9 @@
 		],
 		"isort.args": [
 			"--settings-path=pyproject.toml"
-		]
+		],
+		"pythonTestExplorer.testFramework": "unittest",
+		"autoDocstring.startOnNewLine": true
 	},
 	"launch": {
 		"version": "0.2.0",
@@ -77,7 +88,8 @@
 					"PYTHONPATH": "./src"
 				},
 				"purpose": [
-					"debug-test"
+					"debug-test",
+					"debug-in-terminal"
 				],
 				"justMyCode": false,
 				"stopOnEntry": false

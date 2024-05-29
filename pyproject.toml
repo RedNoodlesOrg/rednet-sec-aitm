@@ -133,6 +133,7 @@ exclude_lines = [
     "raise NotImplementedError",
     "pass",
     "if __name__ == '__main__':",
+    "next()",
 ]
 
 [tool.pytest.ini_options]
@@ -145,16 +146,8 @@ addopts = [
     "--cov-config=pyproject.toml",
 ]
 pythonpath = ["src/"]
-testpaths = ["tests"]
+testpaths = ["tests/unit"]
 junit_family = "xunit2"
-markers = [
-    "integration: marks as integration test",
-    "notebooks: marks as notebook test",
-    "gpu: marks as gpu test",
-    "spark: marks tests which need Spark",
-    "slow: marks tests as slow",
-    "unit: fast offline tests",
-]
 
 [tool.pylint]
 extension-pkg-whitelist = [
