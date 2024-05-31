@@ -18,6 +18,8 @@ dependencies = [
     "requests>=2.31.0",
     "requests-oauthlib>=2.0.0",
     "transitions>=0.9.1",
+    "flask>=3.0.3",
+    "jinja2>=3.1.4",
 ]
 
 [tool.project-customizations.docs]
@@ -69,7 +71,6 @@ test.cmd = "pytest --cov=src --cov-report=xml"
 start.cmd = "python -m aitm"
 lint.cmd = "pre-commit run --all-files"
 
-[tool.pdm.dev-dependencies]
 [tool.isort]
 profile = "black"
 add_imports = ["from __future__ import annotations"]
