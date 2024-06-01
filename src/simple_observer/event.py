@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 
 class Event:
     """
@@ -15,6 +17,7 @@ class Event:
     def __init__(self, event_type, data=None):
         self.event_type = event_type
         self.data = data
+        self.timestamp = datetime.now()
 
     def __str__(self) -> str:
-        return f"Event type: {self.event_type}, data: {self.data}"
+        return f"[{self.timestamp.strftime('%d/%b/%Y %H:%M:%S')}] Event type: {self.event_type}, data: {self.data}"
