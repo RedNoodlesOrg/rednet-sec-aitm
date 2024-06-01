@@ -12,7 +12,7 @@ class Event:
         data (Any): Optional data associated with the event.
     """
 
-    __slots__ = ["event_type", "data"]
+    __slots__ = ["event_type", "data", "timestamp"]
 
     def __init__(self, event_type, data=None):
         self.event_type = event_type
