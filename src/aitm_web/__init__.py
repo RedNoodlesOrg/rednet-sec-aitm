@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from asgiref.wsgi import WsgiToAsgi
 from flask import Flask
 
 from .routes import main
@@ -11,4 +12,4 @@ def create_app():
 
     app.register_blueprint(main)
 
-    return app
+    return WsgiToAsgi(app)
