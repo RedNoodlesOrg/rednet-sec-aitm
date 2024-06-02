@@ -42,6 +42,7 @@ class ModifierAddon:
         """
         if flow.request.host == get_config().local_upstream_hostname:
             return
+        logger.info("Request: %s from %s", flow.request.pretty_url, flow.client_conn.id)
         requests.modify_header(flow, "Host")
         requests.modify_header(flow, "Referer")
         requests.modify_header(flow, "Origin")
@@ -69,7 +70,7 @@ class ModifierAddon:
             flow (mitmproxy.http.HTTPFlow): The HTTP flow object representing
                                             the client request and server response.
         """
-
+        logger.info("Response: %s for %s", flow.response.status_code, flow.request.pretty_url)
         responses.save_cookies(flow, self.simple_cookie)
         responses.modify_header(flow, "Location")
         responses.modify_cookies(flow)

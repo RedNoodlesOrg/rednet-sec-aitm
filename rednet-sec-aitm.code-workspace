@@ -79,6 +79,15 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
+				"name": "Python Debugger: Web",
+				"type": "debugpy",
+				"request": "launch",
+				"module": "aitm_web",
+				"env": {
+					"PYTHONPATH": "./src"
+				},
+			},
+			{
 				"name": "Python Debugger",
 				"type": "debugpy",
 				"request": "launch",
@@ -95,7 +104,7 @@
 				"stopOnEntry": false
 			},
 			{
-				"name": "Python Debugger: Project",
+				"name": "Python Debugger: Aitm",
 				"type": "debugpy",
 				"request": "launch",
 				"module": "aitm",

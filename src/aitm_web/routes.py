@@ -1,20 +1,16 @@
 from __future__ import annotations
 
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, render_template
 
 main = Blueprint("main", __name__)
 
 
-@main.route("/heartbeat")
-def heartbeat():
-    return jsonify({"status": "healthy"})
-
-
 @main.route("/")
+@main.route("/status")
 def index():
-    return render_template("base.html.j2")
+    return render_template("status.html.j2")
 
 
-@main.route("/mock")
-def mock():
-    return render_template("mock.html.j2")
+@main.route("/logs")
+def logs():
+    return render_template("logs.html.j2")

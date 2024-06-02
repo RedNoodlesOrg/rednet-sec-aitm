@@ -1,6 +1,14 @@
 from __future__ import annotations
 
+import json
+
+from flask_socketio import SocketIO
+
 from simple_observer import Event, Observer, Subject
+
+from .socket import socketio as socketio_instance
+
+_socketio: SocketIO = socketio_instance
 
 
 class EventListener(Observer):
@@ -34,7 +42,7 @@ class EventListener(Observer):
             None
         """
         self.history.append(event)
-        print(f"Event listener received event: {event}")
+        _socketio.emit("new_event", json.dumps(event.to_dict()))
 
     @staticmethod
     def get_listener() -> EventListener:

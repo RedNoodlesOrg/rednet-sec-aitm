@@ -1,8 +1,9 @@
 {% extends "base.html.j2" %}
-{% block title %}Mock{% endblock %}
+{% block title %}Status{% endblock %}
 {% block head %}
 {{ super() }}
 {% endblock %}
+{% block content_header %}<b><i class="bi bi-info-circle-fill"></i> Status</b>{% endblock %}
 {% block content %}
 <div class="rn-accordion">
     {% with item_content="This is the content of section 1.", item_id="content1", item_title="Section 1",
@@ -22,4 +23,8 @@
     {% include "includes/accordion-item.html.j2" %}
     {% endwith %}
 </div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="static/js/socket_events.js"></script>
 {% endblock %}

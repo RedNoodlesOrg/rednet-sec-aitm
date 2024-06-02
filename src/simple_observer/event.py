@@ -21,3 +21,10 @@ class Event:
 
     def __str__(self) -> str:
         return f"[{self.timestamp.strftime('%d/%b/%Y %H:%M:%S')}] Event type: {self.event_type}, data: {self.data}"
+
+    def to_dict(self) -> dict:
+        return {
+            "event_type": self.event_type,
+            "data": self.data,
+            "timestamp": self.timestamp.strftime("%d/%b/%Y %H:%M:%S"),
+        }
